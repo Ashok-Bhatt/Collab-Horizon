@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
 import {User} from "../models/user.model.js";
-import {uploadOnCloudinary} from  "../utils/cloudinary.js";
+import {uploadOnCloudinary, removeFromCloudinary} from  "../utils/cloudinary.js";
+import jwt from "jsonwebtoken";
 
 const loginUser = async (req, res) => {
     
@@ -37,7 +37,7 @@ const loginUser = async (req, res) => {
         throw Error("User with given email not present!");
     }
 
-    console.log(user);
+    // console.log(user);
     
     // Checking if user has entered correct password or not
     const isPasswordMatched = await user.isPasswordCorrect(password);
@@ -79,6 +79,7 @@ const loginUser = async (req, res) => {
 
 }
 
+
 const createAccount = async (req, res) => {
 
     /* 
@@ -116,7 +117,7 @@ const createAccount = async (req, res) => {
 
     // Validate for avatar image
 
-    console.log(req.files)
+    // console.log(req.files)
 
     let avatarLocalPath;
     if (req.files){
@@ -175,4 +176,440 @@ const createAccount = async (req, res) => {
 
 }
 
-export {loginUser, createAccount};
+
+const logout = async (req, res) => {
+
+    /*  
+    Steps for logout:
+
+    # Get user info from the req.user
+    # Remove refresh Token from the the database
+    # Remove access token and refresh token from cookies
+    */
+
+
+    // Get user info from req.user
+
+    const loggedInUser = req.user;
+
+
+    // Remove refresh token from the database
+    await User.findByIdAndUpdate(
+        loggedInUser._id,
+        {
+            $unset : {
+                refreshToken: 1,    // 1 inside $unset means exclude it
+            }
+        },
+        {
+            new: true,              // new = true means changes gets saved
+        },
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    }
+
+    res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(
+        {
+            status: "success",
+            message: "Logged Out Successfully!"
+        }
+    )
+}
+
+
+const updateAvatar = async (req, res) => {
+
+    /* 
+    Steps to update avatar image:
+    # Get user from req.user
+    # get new profile image from req.body
+    # store cloudinary url of previous image into a variable
+    # Store new image to cloudinary
+    # Update the link in database
+    # Now delete the previous image using the url stored in the variable used above
+    # Send response back to the user
+    */
+
+
+    // Get user from the req.user
+    const loggedInUser = req.user;
+
+    
+    // Get new profile photo from req.body
+    let profilePhoto;
+
+    if (req.files){
+        if (Array.isArray(req.files.avatar) && req.files.avatar.length > 0){
+            profilePhoto = req.files.avatar[0].path;
+        } else {
+            profilePhoto = req.files.avatar.path;
+        }
+    } else {
+        throw Error("Image not provided properly");
+    }
+
+    // console.log(loggedInUser);
+
+
+    // Storing url of previous image into a variable so that once new image is assigned, it can get deleted
+    const previousProfileImage = loggedInUser.avatar
+    const previousImagePublicId = previousProfileImage.split('/').at(-1).split(".")[0];
+
+    // console.log(previousProfileImage);
+
+
+    // Store new image to cloudinary
+    const cloudinaryResponse = await uploadOnCloudinary(profilePhoto);
+
+    if (!cloudinaryResponse){
+        throw Error("Couldn't upload new profile!")
+    }
+
+
+    // update link in database 
+    await User.findByIdAndUpdate(
+        loggedInUser._id, 
+        {
+            $set : {
+                avatar : cloudinaryResponse.url,
+            }
+        },
+        {
+            new : true,
+        },
+    )
+
+    // console.log(cloudinaryResponse.url);
+    // console.log(await User.findById(loggedInUser._id).select("avatar"));
+
+
+    // Delete Previous image
+
+    // console.log("Previous Public Id: ", previousImagePublicId);
+    const cloudinaryRemoveResponse = await removeFromCloudinary(previousImagePublicId);
+
+    if (!cloudinaryRemoveResponse){
+        throw Error("Couldn't delete previous profile photo from storage");
+    }
+
+
+    // Send a response to the User
+    res.status(200).json({
+        status: 200,
+        message : "Image Updated Successfully",
+    })
+
+}
+
+
+const updateProfile = async (req, res) => {
+
+    /* 
+    Steps to update profile info: 
+
+    # Take input via request
+    # Validate Input
+    # Get user from req.users
+    # Update User Info in the database
+    # Send response to the user 
+    */
+
+
+    // Take input from request
+    const {username, bio, skills, socialProfilesLinks} = req.body;
+
+
+    // Validate input
+    if (!username.trim() || bio==null || skills==null || socialProfilesLinks==null){
+        throw Error("Every Field is required");
+    }
+
+
+    // Get user from req.users
+    const loggedInUser = req.user;
+
+
+    // Update user info in the database
+    const updateResponse = await User.findByIdAndUpdate(
+        loggedInUser._id, 
+        {
+            $set : {
+                username,
+                bio,
+                skills,
+                socialProfilesLinks,
+            }
+        },
+        {
+            new: true,
+        }
+    )
+
+    if (!updateResponse){
+        throw Error("Couldn't update new information");
+    }
+
+    // Now send response to user
+    res.status(200).json({
+        status: 200,
+        message : "Data Updated Successfully",
+    })
+
+}
+
+
+const updateCoverImage = async (req, res) => {
+
+    /* 
+    Steps to update the cover image:
+    # Take user from req.user
+    # Take coverImage from req body
+    # If coverImage for user exists, then store it in a variable
+    # Upload a new image on cloudinary
+    # Update coverImage on database
+    # Delete previous image from cloudinary (if existed)
+    # Return response to the user
+    */
+
+
+    // Take user from the req.user
+    const loggedInUser = req.user;
+
+
+    // Take cover image from request body (req.files)
+    let coverImage;
+    if (req.files && req.files.coverImage){
+        if (Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+            coverImage = req.files.coverImage[0].path;
+        } else {
+            coverImage = req.files.coverImage.path;
+        }
+    }
+
+    if (!coverImage){
+        throw Error("Kindly provide cover image.");
+    }
+
+
+    // Storing url previous cover image in a variable
+    const previousCoverImageUrl = loggedInUser.coverImage;
+    const previousCoverImagePublicId = previousCoverImageUrl?.split("/").at(-1).split(".")[0];
+
+
+    // Add new cover image to cloudinary
+    const addImageResponse = await uploadOnCloudinary(coverImage);
+
+    if (!addImageResponse){
+        throw Error("Couldn't upload new cover image");
+    }
+
+
+    // Update cover image link in database
+    await User.findByIdAndUpdate(
+        loggedInUser._id, 
+        {
+            $set : {
+                coverImage: addImageResponse.url,
+            }
+        },
+        {
+            new: true,
+        },
+    )
+
+    // Delete previous cover image from cloudinary if existed
+    if (previousCoverImageUrl){
+        const deleteResponse = await removeFromCloudinary(previousCoverImagePublicId);
+
+        if (!deleteResponse){
+            throw Error("Couldn't delete the previous cover image from cloudinary");
+        }
+    }
+
+    // Now send response to user
+    res.status(200).json({
+        status: 200,
+        message : "Image Updated Successfully",
+    })
+
+} 
+
+
+const getUserInfo = async (req, res) => {
+
+    /*
+    Steps to get current logged in user's information
+    # Get user_id from the route parameter
+    # Extract user from that user_id and Remove password and refreshToken from user
+    # Send response back to the user
+    */
+    
+    // get user from the req.user
+    const userId = req.params.userId;
+
+    if (!userId){
+        throw Error("Please provide user id.");
+    }
+
+    // console.log(req.user._id);
+    // console.log(userId);
+
+    // NOTE: Even though userId contains only a string and not id string wrapped inside ObjectId instance, it can still be used to find user instance in findById function
+
+    // Extract user from the user_id and remove password and refreshToken from user
+    const user = await User.findById(
+        userId,
+        {
+            password: 0,
+            refreshToken: 0,
+        }
+    )
+
+    if (!user){
+        throw Error("User with given id not found");
+    }
+
+    // console.log(user);
+
+
+    // Send response back to the user
+    return res.status(200).json(user);
+
+}
+
+
+const changePassword = async (req, res) => {
+
+    /* 
+    Steps to change password:
+    # Get user from req.users
+    # Get old and new password from request body
+    # validate both passwords
+    # Check if old password is correct or not
+    # change password in database
+    # Send response to user
+    */
+
+
+    // Get user from req.users
+    const loggedInUser = req.user;
+    const user = await User.findById(loggedInUser._id);
+
+
+    // Get new and old password from req body
+    const {oldPassword, newPassword} = req.body;
+
+
+    // validate both passwords
+    if (!oldPassword.trim() || !newPassword.trim()){
+        throw Error("Old and new password are required");
+    } else if (newPassword.trim().length < 8){
+        throw Error("Password length should be at least 8");
+    }
+
+
+    // Check if old password is correct or not
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect){
+        throw Error("Incorrect password!");
+    }
+
+
+    // Save new password to database
+    user.password = newPassword;
+    await user.save({validateBeforeSave: false})
+
+
+    // Return response to the user
+    return res.status(200).json({
+        status: 200,
+        message: "password saved successfully",
+    })
+
+}
+
+
+const getNewTokens = async (req, res) => {
+
+    /* 
+    Steps to get new access token and new refresh token
+    # Get previous refresh token from req.cookie or req.body
+    # Get user from decoded refresh token by verifying incoming refresh token
+    # Check if incoming refresh token and the token saved in user database are same or not
+    # Generate new access and refresh token
+    # Save new refresh token in database
+    # save this refresh and access token in cookie
+    # return response to the user
+    */
+
+    // console.log(req.cookies);
+
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken){
+        throw Error("Refresh token required!");
+    }
+
+    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decodedToken._id);
+
+    if (!user){
+        throw Error("Invalid refresh token");
+    }
+
+
+    // Checking if incoming refresh token and refresh token stored in database are same or not
+    if (incomingRefreshToken != user.refreshToken){
+        throw Error("Refresh token is either expired or used.");
+    }
+
+
+    // Generating new access and refresh token
+    const options = {
+        httpOnly: true,
+        secure: true,
+    }
+
+    const accessToken = await user.generateAccessToken();
+    const refreshToken = await user.generateRefreshToken();
+
+    
+    // Storing new refresh token in database
+    user.refreshToken = refreshToken;
+    user.save({validateBeforeSave: false});
+
+
+    // Sending response back to the user and also storing new tokens in the cookie
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json({
+        status: 200,
+        refreshToken,
+        accessToken,
+        message: "New refresh token and access token received!",
+    })
+
+}
+
+
+export {
+    loginUser,
+    createAccount,
+    logout,
+    updateProfile,
+    updateAvatar,
+    updateCoverImage,
+    getUserInfo,
+    changePassword,
+    getNewTokens,
+};
