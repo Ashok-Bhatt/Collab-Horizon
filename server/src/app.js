@@ -19,8 +19,10 @@ app.use(cookieParser())
 
 // Importing Routes
 import userRouter from "./routes/user.routes.js";
+import projectRouter from "./routes/project.routes.js";
 
 // Note: '/' before /api/v1/user is very important else it won't work as expects a request like this - 'https:localhost:3000/api/v1/user/..'
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/project", projectRouter);
 
 export {app}
