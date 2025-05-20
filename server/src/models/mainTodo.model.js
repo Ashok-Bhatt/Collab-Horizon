@@ -6,6 +6,11 @@ const mainTodoSchema = new Schema({
         required: true,
         trim: true,
     }, 
+    projectId : {
+        type: mongoose.Types.ObjectId,
+        ref: "Project",
+        required: true,
+    },
     subTodos: {
         type: [ 
             {
@@ -65,4 +70,4 @@ const mainTodoSchema = new Schema({
     timestamps: true,
 })
 
-export const mainTodo = mongoose.model("MainTodo", mainTodoSchema);
+export const MainTodo = mongoose.model("MainTodo", mainTodoSchema);

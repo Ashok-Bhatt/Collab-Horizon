@@ -6,17 +6,26 @@ const subTodoSchema = new Schema({
         required: true,
         trim: true,
     }, 
+    projectId : {
+        type: mongoose.Types.ObjectId,
+        ref: "MainTodo",
+        required: true,
+    },
+    todoId: {
+        type: mongoose.Types.ObjectId,
+        ref: "MainTodo",
+        required: true,
+    },
     description: {
         type: String,
     }, 
     status: {
         type: String,
-        default: 'Remaining',
+        default: 'Todo',
     },
     doneBy: {
         type : Schema.Types.ObjectId,
         ref : "User",
-        required: true,
     },
     backgroundColor : {
         type: String,
@@ -29,3 +38,5 @@ const subTodoSchema = new Schema({
 }, {
     timestamps: true,
 })
+
+export const SubTodo = mongoose.model("SubTodo", subTodoSchema);
