@@ -55,13 +55,7 @@ const projectSchema = new Schema({
     srcCodeLink: {
         type: String,
         trim: true,
-    }, 
-    notifications: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Notification",
-        }
-    ],
+    },
     backgroundColor : {
         type: String,
         default : "#444444",

@@ -11,7 +11,7 @@ import {
 const router = Router();
 
 // Secure routes
-router.route("/sendNotification").post(verifyJWT, sendNotification);
+router.route("/sendNotification").post(sendNotification);
 router.route("/getNotifications").get(verifyJWT, getNotifications);
 router.route("/deleteNotification").delete(verifyJWT, deleteNotification);
 

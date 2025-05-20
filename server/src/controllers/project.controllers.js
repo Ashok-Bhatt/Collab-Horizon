@@ -1,4 +1,3 @@
-import {User} from "../models/user.model.js";
 import {Project} from "../models/project.model.js";
 import {ProjectRequest} from "../models/projectRequest.model.js";
 import {nanoid} from "nanoid";

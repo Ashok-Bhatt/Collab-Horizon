@@ -1,20 +1,16 @@
 import mongoose, {Schema} from "mongoose";
 
 const notificationSchema = new Schema({
-    notificationText : {
+    notificationMessage : {
         type: String,
         required: true,
     },
-    notificationSender: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-    },
     notificationReceiver: {
         type: Schema.Types.ObjectId,
-        ref: "Project",
+        ref: "User",
     }
 }, {
     timestamps: true,
 })
 
-export const notification = new mongoose.model("Notification", notificationSchema);
+export const Notification = new mongoose.model("Notification", notificationSchema);
