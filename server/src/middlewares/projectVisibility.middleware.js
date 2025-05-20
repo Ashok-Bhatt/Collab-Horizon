@@ -4,16 +4,16 @@ import { Project } from "../models/project.model.js";
 const checkProjectVisibility = async (req, res, next) => {
 
     try{
-        const projectId = req.params?.projectId || req.body?.projectId;
+        const projectId = req.query?.projectId || req.body?.projectId;
         const project = await Project.findById(projectId);
         
         if (!project){
             throw Error("Invalid Project Id");
         }
 
-        const visibility = project.projectVisibility;
+        const visibility = project.visibilityStatus;
 
-        res.isProjectVisible = visibility;
+        req.isProjectVisible = visibility;
         next();
 
     } catch (error){
@@ -22,5 +22,5 @@ const checkProjectVisibility = async (req, res, next) => {
 }
 
 export {
-    checkProjectVisibility
+    checkProjectVisibility,
 }

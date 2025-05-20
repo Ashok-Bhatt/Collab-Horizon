@@ -4,12 +4,12 @@ const projectRequestSchema = new Schema({
     requestSender : {
         type: mongoose.Types.ObjectId,
         ref: "User",
-        require: true,
+        required: true,
     },
     requestReceiver : {
         type: mongoose.Types.ObjectId,
         ref: "Project",
-        require: true,
+        required: true,
     },
     requestText : {
         type: "String",
@@ -19,4 +19,4 @@ const projectRequestSchema = new Schema({
     timestamps: true,
 })
 
-export const projectRequest = mongoose.model("ProjectRequest", projectRequestSchema);
+export const ProjectRequest = mongoose.model("ProjectRequest", projectRequestSchema);

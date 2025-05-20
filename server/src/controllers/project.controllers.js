@@ -1,6 +1,6 @@
 import {User} from "../models/user.model.js";
 import {Project} from "../models/project.model.js";
-import {projectRequest} from "../models/projectRequest.model.js";
+import {ProjectRequest} from "../models/projectRequest.model.js";
 import {nanoid} from "nanoid";
 
 const createProject = async (req, res) => {
@@ -52,10 +52,11 @@ const createProject = async (req, res) => {
 
 const getProjectInfo = async(req, res) => {
 
-    const projectId = req.params?.projectId;
+    const projectId = req.query?.projectId;
     const projectVisibility = req.isProjectVisible;
+    const isMember = req.isMember;
 
-    if (!projectVisibility){
+    if (!projectVisibility && !isMember){
         throw Error("You are not authorized to see the project information.");
     }
 
@@ -123,20 +124,23 @@ const changeInfo = async (req, res) => {
 
 const removeProject = async(req, res) => {
 
-    const projectId = req.params?.projectId;
+    const projectId = req.query?.projectId;
     const isAdmin = req.isAdmin;
 
-    if (isAdmin){
+    console.log(projectId);
+    console.log(isAdmin);
+
+    if (!isAdmin){
         throw Error("You are not authorized to delete this project");
     }
 
-    const project = await findById(projectId);
+    const project = await Project.findById(projectId);
 
     if (!project){
         throw Error("Invalid Project Id!");
     }
 
-    deletedProject = await Project.findByIdAndDelete(projectId);
+    const deletedProject = await Project.findByIdAndDelete(projectId);
 
     if (!deletedProject){
         throw Error("Unable to delete project!");
@@ -155,26 +159,21 @@ const removeProject = async(req, res) => {
 
 const toggleVisibilityStatus = async(req, res) => {
 
-    const projectId = req.params?.projectId;
+    const projectId = req.query?.projectId;
     const isAdmin = req.isAdmin;
 
     if (!isAdmin){
         throw Error("You are not authorized to change visibility of the project");
     }
 
-    const project = await Project.findByIdAndUpdate(
-        projectId,
-        {
-            visibilityStatus : !visibilityStatus,
-        },
-        {
-            new: true,
-        },
-    )
+    const project = await Project.findById(projectId)
 
     if (!project){
         throw Error("Couldn't delete the project.");
     }
+
+    project.visibilityStatus = !project.visibilityStatus;
+    project.save({validateBeforeSave: false});
 
     res.status(200).json(
         {
@@ -197,11 +196,15 @@ const sendProjectJoiningRequest = async(req, res) => {
         throw Error("Project Code is required")
     }
 
-    const project = await Project.find({projectCode});
+    const project = await Project.findOne({
+        uniqueCode : projectCode,
+    });
 
     if (!project){
         throw Error("Invalid Project code!");
     }
+
+    console.log(project._id);
 
     const projectRequest = await ProjectRequest.create(
         {
@@ -218,7 +221,8 @@ const sendProjectJoiningRequest = async(req, res) => {
     return res.status(200).json(
         {
             status: 200,
-            message: "Project Joining request sent successfully!"
+            message: "Project Joining request sent successfully!",
+            projectRequest
         }
     )
 
@@ -228,13 +232,13 @@ const sendProjectJoiningRequest = async(req, res) => {
 const getAllProjectJoiningRequests = async (req, res) => {
 
     const isMember = req.isMember;
-    const projectId = req.params.projectId;
+    const projectId = req.query?.projectId;
 
     if (!isMember){
         throw Error("You are not authorized to see project joining requests.");
     }
 
-    const projectJoiningRequests = await ProjectRequest.findAll(
+    const projectJoiningRequests = await ProjectRequest.find(
         {
             requestReceiver : projectId,
         }
@@ -247,10 +251,10 @@ const getAllProjectJoiningRequests = async (req, res) => {
 
 const handleProjectJoiningRequest = async(req, res) => {
 
-    const isAdmin = req.admin;
-    const projectId = req.params.projectId;
-    const requestId = req.params.requestId;
-    const isRequestAccepted = req.params.requestAction;
+    const isAdmin = req.isAdmin;
+    const projectId = req.query?.projectId;
+    const requestId = req.query?.requestId;
+    const isRequestAccepted = req.query?.requestAction;
 
     if (!isAdmin){
         throw Error("You are not authorized to respond to project joining requests");
@@ -262,26 +266,39 @@ const handleProjectJoiningRequest = async(req, res) => {
         throw Error("No project joining request found!");
     }
 
-    if (projectJoiningRequest.requestReceiver !== projectId){
+    if (!projectJoiningRequest.requestReceiver.equals(projectId)){
         throw Error("Invalid projectId for given project request");
     }
 
-    if (isRequestAccepted){
+    if (isRequestAccepted === "true"){
         const project = await Project.findById(projectId);
         
         if (!project){
             throw Error("Couldn't find project for given project id!")
         }
 
-        await project.projectGroup.push(
+        project.projectGroup.push(
             {
                 groupMember: projectJoiningRequest.requestSender,
                 designation: "Team Member",
             }
         );
 
-        project.save({validateBeforeSave : false,})
+        project.save({validateBeforeSave : false});
     }
+
+    const deleteResponse = await projectJoiningRequest.deleteOne();
+
+    if (!deleteResponse){
+        throw Error("Unable to remove project joining request.");
+    }
+
+    res.status(200).json(
+        {
+            status: 200,
+            message: `Your project joining request ${isRequestAccepted==='true' ? 'accepted' : 'rejected'}.`
+        }
+    )
 
 }
 
@@ -294,5 +311,5 @@ export {
     toggleVisibilityStatus,
     sendProjectJoiningRequest,
     getAllProjectJoiningRequests,
-
+    handleProjectJoiningRequest,
 }

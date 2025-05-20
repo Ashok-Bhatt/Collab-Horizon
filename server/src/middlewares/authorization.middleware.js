@@ -5,9 +5,9 @@ const checkUserAuthorization = async (req, res, next) => {
 
     try{
         const user = req.user;
-        const projectId = req.params?.projectId || req.body?.projectId;
+        const projectId = req.query?.projectId || req.body?.projectId;
 
-        if (!!projectId || projectId.trim()){
+        if (!projectId || !projectId.trim()){
             throw Error("Project Id is required");
         }
 
@@ -18,27 +18,27 @@ const checkUserAuthorization = async (req, res, next) => {
         }
 
         const projectMembers = project.projectGroup;
-        const projectAdmins = project.projectGroup.filter((member) => member.designation == "Admin");
+        const projectAdmins = projectMembers.filter((member) => member.designation == "Admin");
 
         let isAdmin = false;
         let isMember = false;
 
-        for (let admin in projectAdmins){
-            if (admin.groupMember == user._id){
+        for (let admin of projectAdmins){
+            if (admin.groupMember.equals(user._id)){
                 isAdmin = true;
                 break;
             }
         }
 
-        for (let member in projectMembers){
-            if (member.groupMember === user._id){
+        for (let member of projectMembers){
+            if (member.groupMember.equals(user._id)){
                 isMember = true;
                 break;
             }
         }
 
-        res.isAdmin = isAdmin;
-        res.isMember = isMember;
+        req.isAdmin = isAdmin;
+        req.isMember = isMember;
         next();
 
     } catch (error){
