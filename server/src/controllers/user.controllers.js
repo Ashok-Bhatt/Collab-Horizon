@@ -63,15 +63,16 @@ const loginUser = async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: false,
+        sameSite: 'Lax',
     }
 
     return res
-    .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
+    .status(200)
     .json({
-        user,
+        loggedInUser,
         accessToken,
         refreshToken,
         message: "User logged in successfully",
@@ -279,7 +280,7 @@ const updateAvatar = async (req, res) => {
         {
             $set : {
                 avatar : cloudinaryResponse.url,
-            }
+            } 
         },
         {
             new : true,

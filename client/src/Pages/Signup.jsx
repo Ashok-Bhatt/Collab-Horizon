@@ -1,6 +1,7 @@
 import React from 'react'
 import {useForm} from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 function Signup() {
 
@@ -12,7 +13,24 @@ function Signup() {
   } = useForm();
 
   const onSubmit = async (data)=>{
-    console.log(data);
+
+    const formData = new FormData();
+    formData.append('username', data.username);
+    formData.append('password', data.password);
+    formData.append('email', data.email);
+    formData.append('avatar', data.avatar[0]);
+    
+    axios
+    .post("http://localhost:8000/api/v1/user/createAccount", formData, {
+      headers : { 'Content-Type' : 'multipart/form-data'}
+    })
+    .then((res)=>{
+      console.log(res.data);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+
   }
 
   return (
@@ -21,6 +39,20 @@ function Signup() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center h-full w-7/10 bg-white gap-y-10">
         <p className="text-5xl text-black font-semibold">Create New Account</p>
         <div className='flex flex-col gap-y-2'>
+
+          {/* Username Field */}
+          <div className='flex flex-col pad-y-2'>
+            <input type="text" placeholder='Username' className='text-black w-100 bg-green-50 border border-green-300 px-5 py-2 rounded-full' {
+              ...register(
+                "username", 
+                {
+                  required: "Username is required",
+                }
+              )
+            }/>
+
+            {errors.username && <p className='text-red-600'>{errors.username.message}</p>}
+          </div>
 
           {/* Email Field */}
           <div className='flex flex-col pad-y-2'>
@@ -43,21 +75,37 @@ function Signup() {
           {/* Password Field */}
           <div className='flex flex-col pad-y-2'>
             <input type="text" placeholder='Password' className='text-black w-100 bg-green-50 border border-green-300 px-5 py-2 rounded-full' {
-            ...register(
-              "password", 
-              {
-                required: "Password is required", 
-                minLength: {
-                  value: 8,
-                  message: "Password length should be at least 8"
+              ...register(
+                "password", 
+                {
+                  required: "Password is required", 
+                  minLength: {
+                    value: 8,
+                    message: "Password length should be at least 8"
+                  }
                 }
-              }
-            )
-          }/>
-        </div>
+              )
+            }/>
 
-        {errors.password && <p className='text-red-600'>{errors.password.message}</p>}
+            {errors.password && <p className='text-red-600'>{errors.password.message}</p>}
           </div>
+
+          {/* Avatar Input */}
+          <div className='flex flex-col gap-y-5'>
+            <div className="flex gap-x-5">
+              <label className='font-semibold'>Avatar</label>
+              <input type="file" className='border-2' {
+                ...register(
+                  "avatar", 
+                  {
+                    required: "Avatar is required", 
+                  }
+                )
+              }/>
+            </div>
+            {errors.avatar && <p className='text-red-600'>{errors.avatar.message}</p>}
+          </div>
+        </div>
 
         {/* Submit Button */}
         <button type='submit' className='bg-teal-400 text-white py-2 px-15 rounded-full' disabled={isSubmitting}>Sign Up</button>

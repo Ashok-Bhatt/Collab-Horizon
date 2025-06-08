@@ -3,7 +3,9 @@ import {User} from "../models/user.model.js";
 
 const verifyJWT = async (req, res, next) => {
 
-    try{
+    console.log(req.cookies);
+
+    // try{
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token){
@@ -20,9 +22,9 @@ const verifyJWT = async (req, res, next) => {
 
         req.user = user;
         next();
-    } catch (error){
-        throw new Error("Something went wrong: ", error.message);
-    }
+    // } catch (error){
+    //     throw new Error("Something went wrong: ", error.message);
+    // }
 }
 
 export {verifyJWT};

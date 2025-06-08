@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router-dom'
-import {useForm} from "react-hook-form" 
+import { useNavigate } from 'react-router-dom';
+import {useForm} from "react-hook-form";
+import axios from "axios";
 
 function Login() {
 
@@ -11,7 +12,23 @@ function Login() {
   } = useForm();
 
   const onSubmit = async (data)=>{
-    console.log(data);
+    
+    const formData = new FormData();
+    formData.append('password', data.password);
+    formData.append('email', data.email);
+    
+    axios
+    .post("http://localhost:8000/api/v1/user/login", formData, {
+      headers : { 'Content-Type' : 'multipart/form-data'},
+      withCredentials: true,
+    })
+    .then((res)=>{
+      console.log(res.data);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+
   }
 
   return (
@@ -53,9 +70,9 @@ function Login() {
               }
             )
           }/>
-        </div>
 
-        {errors.password && <p className='text-red-600'>{errors.password.message}</p>}
+          {errors.password && <p className='text-red-600'>{errors.password.message}</p>}
+        </div>
           </div>
 
         {/* Submit Button */}
