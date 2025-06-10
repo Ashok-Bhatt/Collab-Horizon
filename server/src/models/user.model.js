@@ -22,12 +22,6 @@ const userSchema = new Schema({
         trim: true,
         index: true,
     },
-    projects: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Project",
-        }
-    ],
     bio: {
         type: String,
         trim: true,

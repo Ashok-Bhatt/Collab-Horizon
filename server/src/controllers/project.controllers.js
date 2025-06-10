@@ -8,6 +8,15 @@ const createProject = async (req, res) => {
     
     const {projectName, projectTagline, projectDescription, startDate, deadline, visibilityStatus, backgroundColor, foregroundColor} = req.body;
 
+    let projectImage;
+    if (req.files && req.files.projectImage){
+        if (Array.isArray(req.files.projectImage) && req.files.projectImage.length > 0){
+            projectImage = req.files.projectImage[0].path;
+        } else {
+            projectImage = req.files.projectImage.path;
+        }
+    }
+
     if (!projectName.trim()){
         throw Error("Project name is required!");
     }
@@ -16,10 +25,12 @@ const createProject = async (req, res) => {
         throw Error("Project tagline is required! Kindly enter a one-liner description of project.");
     }
 
+
     const newProject = await Project.create({
         projectName,
         projectTagline,
         projectDescription,
+        projectImage,
         startDate,
         deadline,
         visibilityStatus,
@@ -126,8 +137,8 @@ const removeProject = async(req, res) => {
     const projectId = req.query?.projectId;
     const isAdmin = req.isAdmin;
 
-    console.log(projectId);
-    console.log(isAdmin);
+    // console.log(projectId);
+    // console.log(isAdmin);
 
     if (!isAdmin){
         throw Error("You are not authorized to delete this project");

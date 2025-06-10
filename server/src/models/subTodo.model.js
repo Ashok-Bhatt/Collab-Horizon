@@ -8,7 +8,7 @@ const subTodoSchema = new Schema({
     }, 
     projectId : {
         type: mongoose.Types.ObjectId,
-        ref: "MainTodo",
+        ref: "Project",
         required: true,
     },
     todoId: {

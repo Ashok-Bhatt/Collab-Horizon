@@ -1,6 +1,7 @@
 import {User} from "../models/user.model.js";
 import {uploadOnCloudinary, removeFromCloudinary} from  "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const loginUser = async (req, res) => {
     
@@ -275,7 +276,7 @@ const updateAvatar = async (req, res) => {
 
 
     // update link in database 
-    await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         loggedInUser._id, 
         {
             $set : {
@@ -286,6 +287,9 @@ const updateAvatar = async (req, res) => {
             new : true,
         },
     )
+
+    console.log(user.avatar);
+    console.log(cloudinaryResponse.url);
 
     // console.log(cloudinaryResponse.url);
     // console.log(await User.findById(loggedInUser._id).select("avatar"));
@@ -305,6 +309,7 @@ const updateAvatar = async (req, res) => {
     res.status(200).json({
         status: 200,
         message : "Image Updated Successfully",
+        image: cloudinaryResponse.url,
     })
 
 }
@@ -462,23 +467,64 @@ const getUserInfo = async (req, res) => {
     // console.log(req.user._id);
     // console.log(userId);
 
-    // NOTE: Even though userId contains only a string and not id string wrapped inside ObjectId instance, it can still be used to find user instance in findById function
+    // NOTE: Even though userId contains only a string and not id string wrapped inside ObjectId instance, it can still be used to find user instance in findById function, but when using aggregation pipelines, it won't work.
 
     // Extract user from the user_id and remove password and refreshToken from user
-    const user = await User.findById(
-        userId,
+    const user = await User.aggregate([
+
+        // First Pipeline : Matching the user through id
         {
-            password: 0,
-            refreshToken: 0,
+            $match : {
+                _id : new mongoose.Types.ObjectId(userId),
+            }
+        }, 
+
+        // Second Pipeline
+        {
+            $lookup : {
+                from : "projects",                  // Collection name
+                let : {userId : "$_id"},
+                pipeline : [
+                    {
+                        $match : {
+                            $expr: {
+                                $gt : [
+                                    {
+                                        $size : {
+                                            $filter : {
+                                                input : "$projectGroup",        // Field name which will be visited/traversed
+                                                as : "group",                   // Each Element of project group : {groupMember, designation}
+                                                cond : {
+                                                    $eq : ["$$group.groupMember", "$$userId"]
+                                                }
+                                            }
+                                        }
+                                    }, 
+                                    0
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as : "projects",
+            }
+        },
+
+        // Last Pipeline : Exclude password and refreshToken
+        {
+            $project : {
+                refreshToken : 0,
+                password : 0,
+                __v : 0,
+            }
         }
-    )
+    ])
 
     if (!user){
         throw Error("User with given id not found");
     }
 
     // console.log(user);
-
 
     // Send response back to the user
     return res.status(200).json(user);

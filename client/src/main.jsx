@@ -9,6 +9,10 @@ import {
 import {
   AuthLayout,
 } from "./Components/export.js"
+import {
+  ThemeContextProvider, 
+  UserContextProvider,
+} from "./Contexts/export.js";
 
 const router = createBrowserRouter(
   [
@@ -47,7 +51,7 @@ const router = createBrowserRouter(
           element: <Signup/>,
         },
         {
-          path : "/profile",
+          path : "/profile/:id",
           element: <Profile/>,
         },
       ]
@@ -56,5 +60,9 @@ const router = createBrowserRouter(
 )
 
 createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router}/>
+  <ThemeContextProvider>
+    <UserContextProvider>
+      <RouterProvider router={router}/>
+    </UserContextProvider>
+  </ThemeContextProvider>
 )

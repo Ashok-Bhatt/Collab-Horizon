@@ -25,7 +25,7 @@ function Signup() {
       headers : { 'Content-Type' : 'multipart/form-data'}
     })
     .then((res)=>{
-      console.log(res.data);
+      navigate("/");
     })
     .catch((error)=>{
       console.log(error);

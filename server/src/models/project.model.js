@@ -14,6 +14,10 @@ const projectSchema = new Schema({
     projectDescription: {
         type: String,
     }, 
+    projectImage : {
+        type: String,
+        default: ""
+    },
     projectGroup : [
         {
             groupMember : {

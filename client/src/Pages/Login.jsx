@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import {useForm} from "react-hook-form";
 import axios from "axios";
+import { UserContext } from '../Contexts/export.js';
+import { useContext } from 'react';
 
 function Login() {
 
   const navigate = useNavigate();
+  const {user, changeUser} = useContext(UserContext);
+
   const {
     register, 
     handleSubmit,
@@ -23,7 +27,9 @@ function Login() {
       withCredentials: true,
     })
     .then((res)=>{
-      console.log(res.data);
+      localStorage.setItem("loggedInUser", JSON.stringify(res.data["loggedInUser"]));
+      changeUser(res.data["loggedInUser"]);
+      navigate("/");
     })
     .catch((error)=>{
       console.log(error);

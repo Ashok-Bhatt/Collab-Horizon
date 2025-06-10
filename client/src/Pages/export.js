@@ -17,5 +17,5 @@ export {
     Project,
     Todo,
     Dashboard,
-    Explore
+    Explore,
 }
