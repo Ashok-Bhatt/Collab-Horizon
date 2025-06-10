@@ -443,6 +443,7 @@ const updateCoverImage = async (req, res) => {
     res.status(200).json({
         status: 200,
         message : "Image Updated Successfully",
+        image: addImageResponse.url,
     })
 
 } 

@@ -1,21 +1,32 @@
 import axios from 'axios'
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useContext } from 'react'
 import { useParams } from 'react-router-dom';
-import {SocialProfileBlock, ProjectBlock} from "../Components/export.js"
+import {SocialProfileBlock, ProjectBlock, MessageBox} from "../Components/export.js"
 import { FaPencilAlt } from "react-icons/fa";
+import { UserContext } from '../Contexts/export.js';
 
 function Profile() {
 
-  const {id} = useParams();
-
   const [userData, setUserData] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [coverImageFile, setCoverImageFile] = useState(null);
   const avatarInput = useRef(null);
+  const coverImageInput = useRef(null);
+  
+  const {user} = useContext(UserContext)
+  const params = useParams();
+  const id = params.id;
 
 
-  const changeFile = async (e)=>{
+  const changeAvatarFile = async (e)=>{
     if (e.target.files && e.target.files.length > 0){
       setAvatarFile(e.target.files[0]);
+    }
+  }
+
+  const changeCoverImageFile = async (e)=>{
+    if (e.target.files && e.target.files.length > 0){
+      setCoverImageFile(e.target.files[0]);
     }
   }
 
@@ -23,25 +34,63 @@ function Profile() {
     avatarInput.current.click();
   }
 
-  const saveNewAvatar = () => {
-
-    const formData = new FormData();
-    formData.append("avatar", avatarFile);
-
-    axios
-    .patch("http://localhost:8000/api/v1/user/updateAvatar", formData, {
-      headers: "multipart/form-data",
-      withCredentials: true,
-    })
-    .then((res)=>{
-      setUserData((prev)=>(
-        {...prev, ["avatar"] : res.data["image"]}
-      ))
-    })
-    .catch((error)=>{
-      console.log("Couldn't update profile pic");
-    })
+  const updateCoverImage = async () => {
+    coverImageInput.current.click();
   }
+
+  // To update cover image whenever a change is detected
+  useEffect(()=>{
+
+    if (coverImageFile){
+      const formData = new FormData();
+      formData.append("coverImage", coverImageFile);
+
+      axios
+      .patch("http://localhost:8000/api/v1/user/updateCoverImage", formData, {
+        headers: "multipart/form-data",
+        withCredentials: true,
+      })
+      .then((res)=>{
+        setUserData((prev)=>(
+          {...prev, ["coverImage"] : res.data["image"]}
+        ))
+      })
+      .catch((error)=>{
+        console.log("Couldn't update profile pic");
+      })
+      .finally(()=>{
+        setCoverImageFile(null);
+      })
+    }
+  }, [coverImageFile]);
+
+
+  // To update avatar whenever a change is detected
+  useEffect(()=>{
+
+    if (avatarFile){
+
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+
+      axios
+      .patch("http://localhost:8000/api/v1/user/updateAvatar", formData, {
+        headers: "multipart/form-data",
+        withCredentials: true,
+      })
+      .then((res)=>{
+        setUserData((prev)=>(
+          {...prev, ["avatar"] : res.data["image"]}
+        ))
+      })
+      .catch((error)=>{
+        console.log("Couldn't update profile pic");
+      })
+      .finally(()=>{
+        setAvatarFile(null);
+      })
+    }
+  }, [avatarFile]);
 
 
   useEffect(()=>{
@@ -64,6 +113,12 @@ function Profile() {
       <div className='min-h-[300px] w-full relative bg-blue-300'>
         <img src={userData?.coverImage} className='h-full w-full'/>
         <p className='absolute text-white font-bold text-3xl bottom-[25px] right-[50px]'>{userData?.username}</p>
+        {(user?._id && user._id === id)?(<>
+          <div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full bg-white' onClick={updateCoverImage}>
+            <FaPencilAlt className='text-blue-500 p-3 h-full w-full'/>
+          </div>
+          <input type="file" ref={coverImageInput} onChange={changeCoverImageFile} className='hidden'/>
+        </>) : null}
       </div>
 
       {/* User Info : Includes Avatar, bio, and other stuff */}
@@ -77,9 +132,11 @@ function Profile() {
             <img src={userData?.avatar} className='h-[200px] w-[200px]'/>
           </div>
 
-          <input type="file" ref={avatarInput} onChange={changeFile} className='hidden'/>
-          <button className='rounded-md px-4 py-2 text-white bg-green-400 w-[150px]' onClick={updateAvatar}>Update Avatar</button>
-          <button className='rounded-md px-4 py-2 text-white bg-blue-400 w-[150px]' onClick={saveNewAvatar}>Save Avatar</button>
+          {(user?._id && user._id == id)?(<>
+            <input type="file" ref={avatarInput} onChange={changeAvatarFile} className='hidden'/>
+            <button className='rounded-md px-4 py-2 text-white bg-green-400 w-[150px]' onClick={updateAvatar}>Update Avatar</button>
+          </>):null}
+          
         </div>
 
         {/* Right Section */}
@@ -87,14 +144,16 @@ function Profile() {
           {/* Skills Section */}
           <div className='flex flex-wrap gap-2 w-full p-1'>
             {
-              userData?.skills.map((skill)=>(
+              (userData?.skills && userData.skills.length>0) ? (userData.skills.map((skill)=>(
                 <div className='rounded-md bg-gray-200 text-blue-400 px-5 py-1' key={skill}>{skill}</div>
-              ))
+              ))) : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-400 rounded-lg" text="No Skills Added" textClasses="text-white text-md font-semibold"/>
             }
           </div>
           {/* Bio Section */}
-          <div className='w-full bg-green-400'>
-            {userData?.bio}
+          <div className='w-full p-1'>
+            {
+              (userData?.bio) ? userData.bio : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-400 rounded-lg" text="No Description Provided" textClasses="text-white text-md font-semibold"/>
+            }
           </div>
         </div>
       </div>
@@ -104,9 +163,9 @@ function Profile() {
         <p className='text-3xl font-bold'>Projects Worked On</p>
         <div className='flex w-full gap-x-5 overflow-x-auto'>
             {
-              userData?.projects?.map((project)=>(
+              (userData?.projects && userData.projects.length > 0) ? (userData.projects.map((project)=>(
                 <ProjectBlock height="h-[200px]" width="min-w-[350px]" textSize="text-md" projectInfo={project} key={project._id}/>
-              ))
+              ))) : <MessageBox containerClasses="flex justify-center items-center h-[200px] w-full bg-gray-400 rounded-lg" text="No Projects Added" textClasses="text-white text-lg font-semibold"/>
             }
         </div>
       </div>
