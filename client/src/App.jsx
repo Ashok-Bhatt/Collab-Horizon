@@ -8,8 +8,10 @@ function App() {
   const {user, changeUser} = useContext(UserContext);
 
   useEffect(()=>{
-    changeUser(JSON.parse(localStorage.getItem("loggedInUser")));
-  }, [])
+    if (localStorage.getItem("loggedInUser")){
+      changeUser(JSON.parse(localStorage.getItem("loggedInUser")));
+    }
+  }, []);
 
   return (
     <div className='h-screen w-screen'>

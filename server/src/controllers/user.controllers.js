@@ -210,7 +210,7 @@ const logout = async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: false,
     }
 
     res
@@ -649,6 +649,37 @@ const getNewTokens = async (req, res) => {
 
 }
 
+const getNewAccessToken = async (req, res) => {
+
+    /* 
+    Steps to get new access token
+    # Generate new access token
+    # Storing it in cookies and returning response
+    */
+
+
+    // Generate new access token
+    const accessToken = await User.generateAccessToken();
+
+
+    // Storing new access token to cookie and returning the response
+
+    const options = {
+        httpOnly: true,
+        secure: false,
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .json({
+        status: 200,
+        accessToken,
+        message: "New Access token generated!",
+    })
+
+}
+
 
 export {
     loginUser,
@@ -660,4 +691,5 @@ export {
     getUserInfo,
     changePassword,
     getNewTokens,
+    getNewAccessToken,
 };

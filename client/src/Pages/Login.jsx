@@ -15,6 +15,20 @@ function Login() {
     formState: {errors, isSubmitting}
   } = useForm();
 
+  const getUserInfo = (id) => {
+    axios
+    .get(`http://localhost:8000/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
+    .then((res)=>{
+      if (res.data.length > 0){
+        changeUser(res.data[0]);
+        localStorage.setItem("loggedInUser", JSON.stringify(res.data[0]));
+      }
+    })
+    .catch((error)=>{
+      console.log("Cannot fetch user info");
+    })
+  }
+
   const onSubmit = async (data)=>{
     
     const formData = new FormData();
@@ -27,8 +41,8 @@ function Login() {
       withCredentials: true,
     })
     .then((res)=>{
-      localStorage.setItem("loggedInUser", JSON.stringify(res.data["loggedInUser"]));
-      changeUser(res.data["loggedInUser"]);
+      localStorage.setItem("accessToken", res.data["accessToken"]);
+      getUserInfo(res.data["loggedInUser"]["_id"]);
       navigate("/");
     })
     .catch((error)=>{

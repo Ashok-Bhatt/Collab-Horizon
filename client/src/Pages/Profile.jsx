@@ -13,7 +13,7 @@ function Profile() {
   const avatarInput = useRef(null);
   const coverImageInput = useRef(null);
   
-  const {user} = useContext(UserContext)
+  const {user} = useContext(UserContext);
   const params = useParams();
   const id = params.id;
 
@@ -99,6 +99,7 @@ function Profile() {
     .then((res)=>{
       if (res.data.length > 0){
         setUserData(res.data[0]);
+        // changeUser(res.data[0]);
       }
     })
     .catch((error)=>{
@@ -114,7 +115,7 @@ function Profile() {
         <img src={userData?.coverImage} className='h-full w-full'/>
         <p className='absolute text-white font-bold text-3xl bottom-[25px] right-[50px]'>{userData?.username}</p>
         {(user?._id && user._id === id)?(<>
-          <div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full bg-white' onClick={updateCoverImage}>
+          <div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full border-2 bg-white' onClick={updateCoverImage}>
             <FaPencilAlt className='text-blue-500 p-3 h-full w-full'/>
           </div>
           <input type="file" ref={coverImageInput} onChange={changeCoverImageFile} className='hidden'/>
@@ -122,10 +123,10 @@ function Profile() {
       </div>
 
       {/* User Info : Includes Avatar, bio, and other stuff */}
-      <div className='flex min-h-[200px] w-full px-[100px]'>
+      <div className='flex w-full px-[100px]'>
 
         {/* Left Section */}
-        <div className='flex flex-col h-full w-[450px] relative items-center justify-end p-2 gap-y-2'>
+        <div className='flex flex-col h-[200px] w-[450px] relative items-center justify-end p-2 gap-y-2'>
 
           {/* User Avatar */}
           <div className='rounded-full border-5 border-white overflow-hidden h-[200px] w-[200px] absolute -top-[100px]'>
@@ -140,20 +141,26 @@ function Profile() {
         </div>
 
         {/* Right Section */}
-        <div className='flex flex-col flex-grow'>
-          {/* Skills Section */}
-          <div className='flex flex-wrap gap-2 w-full p-1'>
-            {
-              (userData?.skills && userData.skills.length>0) ? (userData.skills.map((skill)=>(
-                <div className='rounded-md bg-gray-200 text-blue-400 px-5 py-1' key={skill}>{skill}</div>
-              ))) : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-400 rounded-lg" text="No Skills Added" textClasses="text-white text-md font-semibold"/>
-            }
-          </div>
+        <div className='flex flex-col flex-grow py-5 gap-y-4'>
           {/* Bio Section */}
-          <div className='w-full p-1'>
-            {
-              (userData?.bio) ? userData.bio : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-400 rounded-lg" text="No Description Provided" textClasses="text-white text-md font-semibold"/>
-            }
+          <div className="flex flex-col gap-y-1 p-1">
+            <p className="text-2xl font-semibold">Bio</p>
+            <div className='w-full'>
+              {
+                (userData?.bio) ? <p className="text-lg">{userData.bio}</p> : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-300 border border-gray-500 rounded-lg" text="No Description Provided" textClasses="text-black text-md font-semibold"/>
+              }
+            </div>
+          </div>
+          {/* Skills Section */}
+          <div className="flex flex-col gap-y-1 p-1">
+            <p className="text-2xl font-semibold">Skills</p>
+             <div className='flex flex-wrap gap-2 w-full'>
+              {
+                (userData?.skills && userData.skills.length>0) ? (userData.skills.map((skill)=>(
+                  <div className='rounded-md bg-gray-200 text-blue-400 px-5 py-1 min-w-20 text-center hover:bg-blue-400 hover:text-white hover:font-bold' key={skill}>{skill}</div>
+                ))) : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-300 border border-fray-500 rounded-lg" text="No Skills Added" textClasses="text-black text-md font-semibold"/>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -164,7 +171,7 @@ function Profile() {
         <div className='flex w-full gap-x-5 overflow-x-auto'>
             {
               (userData?.projects && userData.projects.length > 0) ? (userData.projects.map((project)=>(
-                <ProjectBlock height="h-[200px]" width="min-w-[350px]" textSize="text-md" projectInfo={project} key={project._id}/>
+                <ProjectBlock height="h-[150px]" width="min-w-[300px]" textSize="text-md" projectInfo={project} key={project._id}/>
               ))) : <MessageBox containerClasses="flex justify-center items-center h-[200px] w-full bg-gray-400 rounded-lg" text="No Projects Added" textClasses="text-white text-lg font-semibold"/>
             }
         </div>

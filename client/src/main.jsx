@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import {
-  Home, Login, Signup, Profile, ErrorPage, Project, Todo, Dashboard, Explore,
+  Home, Login, Signup, Profile, ErrorPage, Project, Todo, Dashboard, Explore, Settings,
 } from "./Pages/export.js";
 import {
   AuthLayout,
@@ -30,25 +30,29 @@ const router = createBrowserRouter(
             },
             {
               path: "/dashboard",
-              element: <Dashboard/>
+              element: <AuthLayout authentication={true} children={<Dashboard/>}/>
             },
             {
               path: "/project/:id>",
-              element: <Project/>
+              element: <AuthLayout authentication={true} children={<Project/>}/>
             },
             {
               path: "/todo/:id",
-              element: <Todo/>
+              element: <AuthLayout authentication={true} children={<Todo/>}/>
             },
+            {
+              path: "/settings",
+              element: <AuthLayout authentication={true} children={<Settings/>}/>
+            }
           ]
         },
         {
           path : "/login",
-          element: <Login/>,
+          element: <AuthLayout authentication={false} children={<Login/>}/>
         },
         {
           path : "/signup",
-          element: <Signup/>,
+          element: <AuthLayout authentication={false} children={<Signup/>}/>
         },
         {
           path : "/profile/:id",

@@ -7,6 +7,7 @@ import Explore from "./Explore.jsx";
 import Project from "./Project.jsx";
 import Todo from "./Todo.jsx";
 import Dashboard from "./Dashboard.jsx";
+import Settings from "./Settings.jsx";
 
 export {
     Login,
@@ -18,4 +19,5 @@ export {
     Todo,
     Dashboard,
     Explore,
+    Settings,
 }

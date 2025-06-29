@@ -1,11 +1,11 @@
 import React from 'react'
 
-function Explore() {
+function Settings() {
   return (
     <div>
-      
+      Settings
     </div>
   )
 }
 
-export default Explore
+export default Settings
