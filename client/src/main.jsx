@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import {
-  Home, Login, Signup, Profile, ErrorPage, Project, Todo, Dashboard, Explore, Settings,
+  Home, Login, Signup, Profile, ErrorPage, Project, Todo, Dashboard, Explore, Settings, AddProject,
 } from "./Pages/export.js";
 import {
   AuthLayout,
@@ -43,6 +43,10 @@ const router = createBrowserRouter(
             {
               path: "/settings",
               element: <AuthLayout authentication={true} children={<Settings/>}/>
+            },
+            {
+              path: "/addProject",
+              element: <AuthLayout authentication={true} children={<AddProject/>}/>
             }
           ]
         },
@@ -56,7 +60,7 @@ const router = createBrowserRouter(
         },
         {
           path : "/profile/:id",
-          element: <Profile/>,
+          element: <AuthLayout authentication={true} children={<Profile/>}/>
         },
       ]
     },

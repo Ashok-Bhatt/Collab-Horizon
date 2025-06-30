@@ -9,8 +9,6 @@ function AuthLayout(props) {
   const {user} = useContext(UserContext);
 
   useEffect(()=>{
-    console.log(user);
-    console.log(authentication);
     if (user && !authentication){
       navigate("/");
     } else if (!user && authentication){
