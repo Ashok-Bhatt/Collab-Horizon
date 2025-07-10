@@ -156,7 +156,7 @@ function Profile() {
              <div className='flex flex-wrap gap-2 w-full'>
               {
                 (userData?.skills && userData.skills.length>0) ? (userData.skills.map((skill)=>(
-                  <div className='rounded-md bg-gray-200 text-blue-400 px-5 py-1 min-w-20 text-center hover:bg-blue-400 hover:text-white font-semibold' key={skill}>{skill}</div>
+                  <div className='rounded-md bg-gray-200 text-blue-400 px-5 py-1 min-w-20 text-center hover:bg-blue-400 hover:text-white font-semibold hover:cursor-pointer' key={skill}>{skill}</div>
                 ))) : <MessageBox containerClasses="flex justify-center items-center h-[100px] w-full bg-gray-300 border border-fray-500 rounded-lg" text="No Skills Added" textClasses="text-black text-md font-semibold"/>
               }
             </div>

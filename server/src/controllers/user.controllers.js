@@ -1,4 +1,5 @@
 import {User} from "../models/user.model.js";
+import {Project} from "../models/project.model.js";
 import {uploadOnCloudinary, removeFromCloudinary} from  "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -31,15 +32,14 @@ const loginUser = async (req, res) => {
 
     // Finding user in database
     const user = await User.findOne({
-        email,
+        email
     });
 
     if (!user){
         throw Error("User with given email not present!");
     }
 
-    // console.log(user);
-    
+
     // Checking if user has entered correct password or not
     const isPasswordMatched = await user.isPasswordCorrect(password);
 
@@ -57,10 +57,59 @@ const loginUser = async (req, res) => {
 
     // console.log(user);
 
-    // Send access token and refresh token to user via cookie
+    // Extract user from the user_id and remove password and refreshToken from user
+    const userWithProjects = await User.aggregate([
 
-    // Note : We used Schema object, User rather than user object that was holding a user, so be aware of that
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        // First Pipeline : Matching the user through id
+        {
+            $match : {
+                _id : new mongoose.Types.ObjectId(user._id),
+            }
+        }, 
+
+        // Second Pipeline
+        {
+            $lookup : {
+                from : "projects",                  // Collection name
+                let : {userId : "$_id"},
+                pipeline : [
+                    {
+                        $match : {
+                            $expr: {
+                                $gt : [
+                                    {
+                                        $size : {
+                                            $filter : {
+                                                input : "$projectGroup",        // Field name which will be visited/traversed
+                                                as : "group",                   // Each Element of project group : {groupMember, designation}
+                                                cond : {
+                                                    $eq : ["$$group.groupMember", "$$userId"]
+                                                }
+                                            }
+                                        }
+                                    }, 
+                                    0
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as : "projects",
+            }
+        },
+
+        // Last Pipeline : Exclude password and refreshToken
+        {
+            $project : {
+                password : 0,
+                __v : 0,
+            }
+        }
+    ])
+
+    // console.log(userWithProjects);
+
+    // Send access token and refresh token to user via cookie
 
     const options = {
         httpOnly: true,
@@ -73,7 +122,7 @@ const loginUser = async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .status(200)
     .json({
-        loggedInUser,
+        user: userWithProjects,
         accessToken,
         refreshToken,
         message: "User logged in successfully",

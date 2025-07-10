@@ -42,7 +42,9 @@ function Login() {
     })
     .then((res)=>{
       localStorage.setItem("accessToken", res.data["accessToken"]);
-      getUserInfo(res.data["loggedInUser"]["_id"]);
+      const loggedInUser = res["data"]["user"][0];
+      changeUser(loggedInUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
       navigate("/");
     })
     .catch((error)=>{
