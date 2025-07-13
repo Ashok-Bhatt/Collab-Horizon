@@ -4,6 +4,9 @@ import ProjectBlock from "./projectBlock";
 import MessageBox from "./MessageBox"
 import Sidebar from "./Sidebar"
 import Navbar from "./Navbar.jsx";
+import SettingOption from "./SettingOption.jsx";
+import OptionBlock from "./OptionBlock.jsx";
+import ToggleButton from "./ToggleButton.jsx";
 
 export {
     AuthLayout,
@@ -12,4 +15,6 @@ export {
     MessageBox,
     Sidebar,
     Navbar,
+    SettingOption,
+    ToggleButton,
 }

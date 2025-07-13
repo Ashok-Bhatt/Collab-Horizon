@@ -47,7 +47,6 @@ function Project() {
     .then((res)=>{
       setProjectInfo(res.data);
       setProjectVisibility(res.data["visibilityStatus"]);
-      console.log(res.data);
     })
     .catch((error)=>{
       console.log("Couldn't fetch project data");
