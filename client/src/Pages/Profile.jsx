@@ -95,7 +95,7 @@ function Profile() {
 
   useEffect(()=>{
     axios
-    .get(`http://localhost:8000/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
+    .patch(`http://localhost:8000/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
     .then((res)=>{
       if (res.data.length > 0){
         setUserData(res.data[0]);

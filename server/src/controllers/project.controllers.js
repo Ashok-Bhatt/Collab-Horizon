@@ -176,7 +176,7 @@ const toggleVisibilityStatus = async(req, res) => {
         throw Error("You are not authorized to change visibility of the project");
     }
 
-    const project = await Project.findById(projectId)
+    const project = await Project.findById(projectId);
 
     if (!project){
         throw Error("Couldn't delete the project.");

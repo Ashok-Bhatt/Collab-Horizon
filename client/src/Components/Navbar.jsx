@@ -22,6 +22,7 @@ function Navbar() {
         .then((res)=>{
             changeUser(null);
             localStorage.removeItem("accessToken");
+            localStorage.removeItem("loggedInUser");
             navigate("/login");
         })
         .catch((error)=>{

@@ -1,15 +1,14 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 function ProjectBlock(props) {
 
     const {height="h-[200px]", width="w-[350px]", textSize="text-md", projectInfo} = props;
-
-    const backgroundColor = `bg-[${projectInfo.backgroundColor}]`;
-    const foregroundColor = `bg-[${projectInfo.foregroundColor}]`;
     const projectImage = projectInfo.projectImage || "/Images/default_project.png";
+    const navigate = useNavigate();
 
   return (
-    <div className={`flex flex-col ${width} ${backgroundColor} ${foregroundColor} rounded-lg overflow-hidden relative group border border-gray-500`}>
+    <div className={`flex flex-col ${width} rounded-lg overflow-hidden relative group border border-gray-500`} style={{backgroundColor:projectInfo.backgroundColor, foregroundColor:projectInfo.foregroundColor}} onClick={()=>navigate(`/project/${projectInfo._id}`)}>
       <div className={`flex w-[full] ${height} flex-grow rounded-lg overflow-hidden`}>
         <img src={projectImage} className='h-full w-full'/>
       </div>
