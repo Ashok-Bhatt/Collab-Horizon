@@ -53,19 +53,10 @@ const mainTodoSchema = new Schema({
 
                     }
                 ]
-                
             },
         ],
         default : [],
     },
-    backgroundColor : {
-        type: String,
-        default : "#444444",
-    },
-    foregroundColor : {
-        type: String,
-        default: "#000000",
-    }
 }, {
     timestamps: true,
 })

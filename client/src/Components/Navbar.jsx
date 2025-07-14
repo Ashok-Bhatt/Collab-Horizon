@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { UserContext } from '../Contexts/export.js'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast, Zoom } from 'react-toastify';
 
 function Navbar() {
 
@@ -26,8 +27,17 @@ function Navbar() {
             navigate("/login");
         })
         .catch((error)=>{
-            console.log("Couldn't logout");
-            console.log(error.message);
+            toast.error("Couldn't logout", {
+                position: "bottom-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Zoom,
+            });
         })
     }
 

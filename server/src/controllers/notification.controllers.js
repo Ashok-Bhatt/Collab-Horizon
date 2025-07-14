@@ -4,7 +4,6 @@ import { Notification } from "../models/notification.model.js";
 const getNotifications = async (req, res) => {
 
     const user = req.user;
-    console.log(user._id);
 
     const notifications = await Notification.find(
         {

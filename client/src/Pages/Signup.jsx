@@ -2,6 +2,7 @@ import React from 'react'
 import {useForm} from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { toast, Zoom } from 'react-toastify';
 
 function Signup() {
 
@@ -28,7 +29,17 @@ function Signup() {
       navigate("/");
     })
     .catch((error)=>{
-      console.log(error);
+     toast.error("Something went wrong! Couldn't create account", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Zoom,
+      });
     })
 
   }

@@ -55,8 +55,6 @@ const loginUser = async (req, res) => {
     user.refreshToken = refreshToken;
     user.save({validateBeforeSave : false});
 
-    // console.log(user);
-
     // Extract user from the user_id and remove password and refreshToken from user
     const userWithProjects = await User.aggregate([
 
@@ -107,8 +105,6 @@ const loginUser = async (req, res) => {
         }
     ])
 
-    // console.log(userWithProjects);
-
     // Send access token and refresh token to user via cookie
 
     const options = {
@@ -148,13 +144,8 @@ const createAccount = async (req, res) => {
 
 
     // taking input from the request
-
-    // Logs json data that was provided in body of request
-    // console.log(req.body);
-
-
     const {username, email, password} = req.body;
-
+    
 
     // validate input data
     if (!username.trim() || !email.trim() || !password.trim()){
@@ -168,8 +159,6 @@ const createAccount = async (req, res) => {
 
     // Validate for avatar image
 
-    // console.log(req.files)
-
     let avatarLocalPath;
     if (req.files){
         if (Array.isArray(req.files.avatar) && req.files.avatar.length > 0){
@@ -182,8 +171,6 @@ const createAccount = async (req, res) => {
     if (!avatarLocalPath){
         throw Error("Avatar File is required");
     }
-
-    // console.log(avatarLocalPath);
 
 
     // Checking if given email already exists in mongodb or not
@@ -306,14 +293,10 @@ const updateAvatar = async (req, res) => {
         throw Error("Image not provided properly");
     }
 
-    // console.log(loggedInUser);
-
 
     // Storing url of previous image into a variable so that once new image is assigned, it can get deleted
     const previousProfileImage = loggedInUser.avatar
     const previousImagePublicId = previousProfileImage.split('/').at(-1).split(".")[0];
-
-    // console.log(previousProfileImage);
 
 
     // Store new image to cloudinary
@@ -337,20 +320,13 @@ const updateAvatar = async (req, res) => {
         },
     )
 
-    console.log(user.avatar);
-    console.log(cloudinaryResponse.url);
-
-    // console.log(cloudinaryResponse.url);
-    // console.log(await User.findById(loggedInUser._id).select("avatar"));
-
 
     // Delete Previous image
-
-    // console.log("Previous Public Id: ", previousImagePublicId);
-    const cloudinaryRemoveResponse = await removeFromCloudinary(previousImagePublicId);
-
-    if (!cloudinaryRemoveResponse){
-        throw Error("Couldn't delete previous profile photo from storage");
+    if (cloudinaryResponse){
+        const cloudinaryRemoveResponse = await removeFromCloudinary(previousImagePublicId);
+        if (!cloudinaryRemoveResponse){
+            throw Error("Couldn't delete previous profile photo from storage");
+        }
     }
 
 
@@ -514,9 +490,6 @@ const getUserInfo = async (req, res) => {
         throw Error("Please provide user id.");
     }
 
-    // console.log(req.user._id);
-    // console.log(userId);
-
     // NOTE: Even though userId contains only a string and not id string wrapped inside ObjectId instance, it can still be used to find user instance in findById function, but when using aggregation pipelines, it won't work.
 
     // Extract user from the user_id and remove password and refreshToken from user
@@ -573,8 +546,6 @@ const getUserInfo = async (req, res) => {
     if (!user){
         throw Error("User with given id not found");
     }
-
-    // console.log(user);
 
     // Send response back to the user
     return res.status(200).json(user);
@@ -646,8 +617,6 @@ const getNewTokens = async (req, res) => {
     # save this refresh and access token in cookie
     # return response to the user
     */
-
-    // console.log(req.cookies);
 
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 

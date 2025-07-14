@@ -3,6 +3,7 @@ import {useForm} from "react-hook-form";
 import axios from "axios";
 import { UserContext } from '../Contexts/export.js';
 import { useContext } from 'react';
+import { toast, Zoom, ToastContainer } from 'react-toastify';
 
 function Login() {
 
@@ -25,7 +26,17 @@ function Login() {
       }
     })
     .catch((error)=>{
-      console.log("Cannot fetch user info");
+      toast.error("Couldn't fetch user info", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Zoom,
+      });
     })
   }
 
@@ -48,7 +59,17 @@ function Login() {
       navigate("/");
     })
     .catch((error)=>{
-      console.log(error);
+      toast.error("Something went wrong! login unsuccessful!", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Zoom,
+      });
     })
 
   }

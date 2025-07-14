@@ -2,6 +2,7 @@ import './App.css'
 import {Outlet} from "react-router-dom"
 import { ThemeContext, UserContext } from "./Contexts/export.js"
 import { useContext, useEffect } from 'react'
+import {ToastContainer, Zoom} from "react-toastify"
 
 function App() {
 
@@ -26,6 +27,19 @@ function App() {
   return (
     <div className='h-screen w-screen'>
       <Outlet/>
+      <ToastContainer
+        position="bottom-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Zoom}
+        />
     </div>
   )
 }

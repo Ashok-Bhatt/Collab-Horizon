@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import {SocialProfileBlock, ProjectBlock, MessageBox} from "../Components/export.js"
 import { FaPencilAlt } from "react-icons/fa";
 import { UserContext } from '../Contexts/export.js';
+import { toast, Zoom } from 'react-toastify';
 
 function Profile() {
 
@@ -56,7 +57,17 @@ function Profile() {
         ))
       })
       .catch((error)=>{
-        console.log("Couldn't update profile pic");
+          toast.error("Couldn't upload cover image", {
+              position: "bottom-center",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Zoom,
+          });
       })
       .finally(()=>{
         setCoverImageFile(null);
@@ -84,7 +95,17 @@ function Profile() {
         ))
       })
       .catch((error)=>{
-        console.log("Couldn't update profile pic");
+        toast.error("Couldn't upload profile pic", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Zoom,
+        });
       })
       .finally(()=>{
         setAvatarFile(null);
@@ -102,7 +123,17 @@ function Profile() {
       }
     })
     .catch((error)=>{
-      console.log("Cannot fetch user info");
+      toast.error("Couldn't fetch user info", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Zoom,
+      });
     })
   }, [])
 

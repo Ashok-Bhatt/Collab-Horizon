@@ -60,14 +60,6 @@ const projectSchema = new Schema({
         type: String,
         trim: true,
     },
-    backgroundColor : {
-        type: String,
-        default : "#444444",
-    },
-    foregroundColor : {
-        type: String,
-        default: "#000000",
-    }
 }, {
     timestamps: true,
 })

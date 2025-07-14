@@ -137,9 +137,6 @@ const removeProject = async(req, res) => {
     const projectId = req.query?.projectId;
     const isAdmin = req.isAdmin;
 
-    // console.log(projectId);
-    // console.log(isAdmin);
-
     if (!isAdmin){
         throw Error("You are not authorized to delete this project");
     }
@@ -213,8 +210,6 @@ const sendProjectJoiningRequest = async(req, res) => {
     if (!project){
         throw Error("Invalid Project code!");
     }
-
-    console.log(project._id);
 
     const projectRequest = await ProjectRequest.create(
         {

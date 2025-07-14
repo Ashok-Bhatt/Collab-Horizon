@@ -19,9 +19,12 @@ const uploadOnCloudinary = async (localFilePath) => {
             throw Error("Please provide path for image.");
         }
 
-        const response = await cloudinary.uploader.upload(localFilePath)
-
-        // console.log(response);
+        const response = await cloudinary.uploader.upload(
+            localFilePath, 
+            {
+                folder: "Collab Horizon"
+            }
+        )
 
         fs.unlinkSync(localFilePath);
         return response;
@@ -38,13 +41,9 @@ const removeFromCloudinary = async (publicId) => {
         if (!publicId){
             throw Error("Please provide image to remove");
         }
-
-        // console.log("PublicId: ", publicId);
         const response = await cloudinary.uploader.destroy(publicId);
-        // console.log("Response: ", response);
         return response;
     } catch (error){
-        // console.log("Error:", error);
         return null;
     }
 

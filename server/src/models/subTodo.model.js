@@ -26,14 +26,6 @@ const subTodoSchema = new Schema({
     doneBy: {
         type : Schema.Types.ObjectId,
         ref : "User",
-    },
-    backgroundColor : {
-        type: String,
-        default : "#444444",
-    },
-    foregroundColor : {
-        type: String,
-        default: "#000000",
     }
 }, {
     timestamps: true,

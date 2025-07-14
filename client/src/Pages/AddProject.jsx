@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from '../Contexts/export.js';
+import { toast, Zoom } from 'react-toastify';
 
 function AddProject(props) {
 
@@ -52,7 +53,17 @@ function AddProject(props) {
             navigate("/dashboard");
         })
         .catch((error)=>{
-            console.log("couldn't create new project", error);
+            toast.error("Couldn't create new project", {
+                position: "bottom-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Zoom,
+            });
         })
         
     }

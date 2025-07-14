@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import axios from "axios"
 import {useParams} from "react-router-dom"
 import { FaCopy } from "react-icons/fa";
+import { toast, Zoom } from 'react-toastify';
 
 function Project() {
 
@@ -12,7 +13,6 @@ function Project() {
 
 
   const copyProjectCode = async () => {
-    console.log(projectCodeRef.current.value);
     await navigator.clipboard.writeText(projectCodeRef.current.value);
     projectCodeRef.current.select();
     setTimeout(()=>{
@@ -21,7 +21,6 @@ function Project() {
   }
 
   const toggleVisibility = async () => {
-    console.log(localStorage.getItem("accessToken"))
     axios
     .patch(
       `http://localhost:8000/api/v1/project/toggleVisibilityStatus?projectId=${id}`,
@@ -35,8 +34,17 @@ function Project() {
       setProjectVisibility((prev)=>!prev)
     })
     .catch((error)=>{
-      console.log(error);
-      console.log("Couldn't toggle the visibility of the project.");
+      toast.error(projectVisibility ? "Couldn't make project private" : "Couldn't make project public", {
+          position: "bottom-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Zoom,
+        });
     })
   }
 
@@ -49,7 +57,17 @@ function Project() {
       setProjectVisibility(res.data["visibilityStatus"]);
     })
     .catch((error)=>{
-      console.log("Couldn't fetch project data");
+      toast.error("Couldn't fetch project info", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Zoom,
+      });
     })
     
   }, [])
