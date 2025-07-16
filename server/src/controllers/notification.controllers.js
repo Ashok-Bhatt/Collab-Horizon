@@ -1,4 +1,6 @@
 import { Notification } from "../models/notification.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const getNotifications = async (req, res) => {
@@ -12,16 +14,12 @@ const getNotifications = async (req, res) => {
     )
 
     if (!notifications){
-        throw Error("Couldn't get notification");
+        throw new ApiError(500, "Couldn't get notification");
     }
 
-    res.status(200).json(
-        {
-            status: 200,
-            message: "All notifications received!",
-            notifications
-        }
-    )
+    return res.status(201).json(
+        new ApiResponse(200, notifications, `All notifications received`)
+    );
 
 }
 
@@ -32,11 +30,11 @@ const sendNotification = async (req, res) => {
     const notificationMessage = req.body?.notificationMessage;
 
     if (!notificationReceiver || !notificationMessage){
-        throw Error("Notification Receiver and Notification Message both are required!");
+        throw new ApiError(400, "Notification Receiver and Notification Message both are required!");
     }
 
     if (!notificationMessage.trim()){
-        throw Error("Notification Message cannot be empty");
+        throw new ApiError(400, "Notification Message cannot be empty");
     }
 
     const newNotification = await Notification.create(
@@ -47,16 +45,12 @@ const sendNotification = async (req, res) => {
     )
 
     if (!newNotification){
-        throw Error("Couldn't create a new notification.");
+        throw new ApiError(500, "Couldn't create a new notification.");
     }
 
-    res.status(200).json(
-        {
-            status: 200,
-            message: "New notification created!",
-            newNotification,
-        }
-    )
+    return res.status(201).json(
+        new ApiResponse(200, newNotification, "New notification created!")
+    );
 
 }
 
@@ -67,28 +61,24 @@ const deleteNotification = async(req, res) => {
     const notificationId = req.query?.notificationId;
 
     if (!notificationId || !notificationId.trim()){
-        throw Error("Notification Id is required!");
+        throw new ApiError(400, "Notification Id is required!");
     }
 
     const notification = await Notification.findById(notificationId);
 
     if (!notification){
-        throw Error("Invalid notification Id!");
+        throw new ApiError(404, "Invalid notification Id!");
     }
 
     if (!notification.notificationReceiver.equals(loggedInUser._id)){
-        throw("You are not authorized to delete this notification");
+        throw new ApiError(403, "You are not authorized to delete this notification");
     }
 
     await notification.deleteOne();
 
-    res.status(200).json(
-        {
-            status: 200,
-            message: "Notification deleted successfully",
-
-        }
-    )
+    return res.status(201).json(
+        new ApiResponse(200, notification, `Notification deleted successfully!`)
+    );
 
 }
 

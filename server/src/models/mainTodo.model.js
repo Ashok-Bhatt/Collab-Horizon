@@ -38,25 +38,30 @@ const mainTodoSchema = new Schema({
         default: 'Remaining',
     },
     doneBy: {
-        type : [
-            {
-                member: {
-                    type: Schema.Types.ObjectId,
-                    ref: "User",
-                    required: true,
-                },
-                contribution : [
-                    {
-                        type: Schema.Types.ObjectId,
-                        ref: "SubTodo",
-                        required: true,
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: false,
+    }
+    // doneBy: {
+    //     type : [
+    //         {
+    //             member: {
+    //                 type: Schema.Types.ObjectId,
+    //                 ref: "User",
+    //                 required: true,
+    //             },
+    //             contribution : [
+    //                 {
+    //                     type: Schema.Types.ObjectId,
+    //                     ref: "SubTodo",
+    //                     required: true,
 
-                    }
-                ]
-            },
-        ],
-        default : [],
-    },
+    //                 }
+    //             ]
+    //         },
+    //     ],
+    //     default : [],
+    // },
 }, {
     timestamps: true,
 })

@@ -1,5 +1,5 @@
 import { Project } from "../models/project.model.js";
-
+import { ApiError } from "../utils/ApiError.js";
 
 const checkUserAuthorization = async (req, res, next) => {
 
@@ -8,13 +8,13 @@ const checkUserAuthorization = async (req, res, next) => {
         const projectId = req.query?.projectId || req.body?.projectId;
 
         if (!projectId || !projectId.trim()){
-            throw Error("Project Id is required");
+            throw new ApiError(statusCode=400, message="Project Id is required");
         }
 
         const project = await Project.findById(projectId);
         
         if (!project){
-            throw Error("Invalid Project Id");
+            throw new ApiError(statusCode=404, message="Invalid Project Id");
         }
 
         const projectMembers = project.projectGroup;
@@ -42,7 +42,7 @@ const checkUserAuthorization = async (req, res, next) => {
         next();
 
     } catch (error){
-        throw Error("Something went wrong! ", error);
+        throw new ApiError(statusCode=404, message="Valid Project Code Required!");
     }
 }
 

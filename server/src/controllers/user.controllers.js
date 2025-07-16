@@ -1,8 +1,10 @@
 import {User} from "../models/user.model.js";
 import {Project} from "../models/project.model.js";
 import {uploadOnCloudinary, removeFromCloudinary} from  "../utils/cloudinary.js";
+import {getUserWithProjects} from "../utils/aggregationPipeline.js"
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const loginUser = async (req, res) => {
     
@@ -56,54 +58,13 @@ const loginUser = async (req, res) => {
     user.save({validateBeforeSave : false});
 
     // Extract user from the user_id and remove password and refreshToken from user
-    const userWithProjects = await User.aggregate([
-
-        // First Pipeline : Matching the user through id
+    const userWithProjects = await getUserWithProjects(
+        user.id,
         {
-            $match : {
-                _id : new mongoose.Types.ObjectId(user._id),
-            }
-        }, 
-
-        // Second Pipeline
-        {
-            $lookup : {
-                from : "projects",                  // Collection name
-                let : {userId : "$_id"},
-                pipeline : [
-                    {
-                        $match : {
-                            $expr: {
-                                $gt : [
-                                    {
-                                        $size : {
-                                            $filter : {
-                                                input : "$projectGroup",        // Field name which will be visited/traversed
-                                                as : "group",                   // Each Element of project group : {groupMember, designation}
-                                                cond : {
-                                                    $eq : ["$$group.groupMember", "$$userId"]
-                                                }
-                                            }
-                                        }
-                                    }, 
-                                    0
-                                ]
-                            }
-                        }
-                    }
-                ],
-                as : "projects",
-            }
-        },
-
-        // Last Pipeline : Exclude password and refreshToken
-        {
-            $project : {
-                password : 0,
-                __v : 0,
-            }
+            password : 0,
+            __v : 0,
         }
-    ])
+    );
 
     // Send access token and refresh token to user via cookie
 
@@ -206,11 +167,9 @@ const createAccount = async (req, res) => {
 
 
     // Return response
-    return res.status(200).json({
-        status : 200,
-        user : createdUser,
-        message : "User Created Successfully"
-    })
+    return res.status(200).json(
+        new ApiResponse(200, createdUser, "User Created Successfully")
+    )
 
 }
 
@@ -254,10 +213,7 @@ const logout = async (req, res) => {
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(
-        {
-            status: "success",
-            message: "Logged Out Successfully!"
-        }
+        new ApiResponse(200, null, "Logged Out Successfully!")
     )
 }
 
@@ -308,7 +264,7 @@ const updateAvatar = async (req, res) => {
 
 
     // update link in database 
-    const user = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
         loggedInUser._id, 
         {
             $set : {
@@ -331,11 +287,9 @@ const updateAvatar = async (req, res) => {
 
 
     // Send a response to the User
-    res.status(200).json({
-        status: 200,
-        message : "Image Updated Successfully",
-        image: cloudinaryResponse.url,
-    })
+    res.status(200).json(
+        new ApiResponse(200, { image: cloudinaryResponse.url }, "Image Updated Successfully")
+    )
 
 }
 
@@ -388,10 +342,9 @@ const updateProfile = async (req, res) => {
     }
 
     // Now send response to user
-    res.status(200).json({
-        status: 200,
-        message : "Data Updated Successfully",
-    })
+    res.status(200).json(
+        new ApiResponse(200, null, "Data Updated Successfully")
+    )
 
 }
 
@@ -465,11 +418,9 @@ const updateCoverImage = async (req, res) => {
     }
 
     // Now send response to user
-    res.status(200).json({
-        status: 200,
-        message : "Image Updated Successfully",
-        image: addImageResponse.url,
-    })
+    res.status(200).json(
+        new ApiResponse(200, { image: addImageResponse.url }, "Image Updated Successfully")
+    )
 
 } 
 
@@ -493,62 +444,23 @@ const getUserInfo = async (req, res) => {
     // NOTE: Even though userId contains only a string and not id string wrapped inside ObjectId instance, it can still be used to find user instance in findById function, but when using aggregation pipelines, it won't work.
 
     // Extract user from the user_id and remove password and refreshToken from user
-    const user = await User.aggregate([
-
-        // First Pipeline : Matching the user through id
+    const user = await getUserWithProjects(
+        userId,
         {
-            $match : {
-                _id : new mongoose.Types.ObjectId(userId),
-            }
-        }, 
-
-        // Second Pipeline
-        {
-            $lookup : {
-                from : "projects",                  // Collection name
-                let : {userId : "$_id"},
-                pipeline : [
-                    {
-                        $match : {
-                            $expr: {
-                                $gt : [
-                                    {
-                                        $size : {
-                                            $filter : {
-                                                input : "$projectGroup",        // Field name which will be visited/traversed
-                                                as : "group",                   // Each Element of project group : {groupMember, designation}
-                                                cond : {
-                                                    $eq : ["$$group.groupMember", "$$userId"]
-                                                }
-                                            }
-                                        }
-                                    }, 
-                                    0
-                                ]
-                            }
-                        }
-                    }
-                ],
-                as : "projects",
-            }
-        },
-
-        // Last Pipeline : Exclude password and refreshToken
-        {
-            $project : {
-                refreshToken : 0,
-                password : 0,
-                __v : 0,
-            }
+            password : 0,
+            refreshToken: 0,
+            __v : 0,
         }
-    ])
+    );
 
     if (!user){
         throw Error("User with given id not found");
     }
 
     // Send response back to the user
-    return res.status(200).json(user);
+    return res.status(200).json(
+        new ApiResponse(200, user, "User info fetched successfully")
+    );
 
 }
 
@@ -597,10 +509,9 @@ const changePassword = async (req, res) => {
 
 
     // Return response to the user
-    return res.status(200).json({
-        status: 200,
-        message: "password saved successfully",
-    })
+    return res.status(200).json(
+        new ApiResponse(200, null, "password saved successfully")
+    )
 
 }
 
@@ -658,12 +569,9 @@ const getNewTokens = async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json({
-        status: 200,
-        refreshToken,
-        accessToken,
-        message: "New refresh token and access token received!",
-    })
+    .json(
+        new ApiResponse(200, { refreshToken, accessToken }, "New refresh token and access token received!")
+    )
 
 }
 
@@ -690,11 +598,9 @@ const getNewAccessToken = async (req, res) => {
     return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .json({
-        status: 200,
-        accessToken,
-        message: "New Access token generated!",
-    })
+    .json(
+        new ApiResponse(200, { accessToken }, "New Access token generated!")
+    )
 
 }
 

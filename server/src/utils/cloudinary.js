@@ -1,6 +1,7 @@
 import {v2 as cloudinary} from "cloudinary";
 import fs from "fs";
 import dotenv from "dotenv";
+import { ApiError } from "./ApiError.js";
 
 dotenv.config({
     path: "./.env"
@@ -15,9 +16,7 @@ cloudinary.config({
 const uploadOnCloudinary = async (localFilePath) => {
     
     try{
-        if (!localFilePath){
-            throw Error("Please provide path for image.");
-        }
+        if (!localFilePath) return null
 
         const response = await cloudinary.uploader.upload(
             localFilePath, 
@@ -38,9 +37,7 @@ const uploadOnCloudinary = async (localFilePath) => {
 const removeFromCloudinary = async (publicId) => {
 
     try{
-        if (!publicId){
-            throw Error("Please provide image to remove");
-        }
+        if (!publicId) return null;
         const response = await cloudinary.uploader.destroy(publicId);
         return response;
     } catch (error){
