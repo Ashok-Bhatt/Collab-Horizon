@@ -3,7 +3,7 @@ import {Project} from "../models/project.model.js";
 import {uploadOnCloudinary, removeFromCloudinary} from  "../utils/cloudinary.js";
 import {getUserWithProjects} from "../utils/aggregationPipeline.js"
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import {REFRESH_TOKEN_SECRET} from "../config/config.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const loginUser = async (req, res) => {
@@ -535,7 +535,7 @@ const getNewTokens = async (req, res) => {
         throw Error("Refresh token required!");
     }
 
-    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const decodedToken = jwt.verify(incomingRefreshToken, REFRESH_TOKEN_SECRET);
     const user = await User.findById(decodedToken._id);
 
     if (!user){
