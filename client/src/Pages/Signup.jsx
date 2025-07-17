@@ -3,6 +3,7 @@ import {useForm} from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { toast, Zoom } from 'react-toastify';
+import conf from "../config/config.js";
 
 function Signup() {
 
@@ -22,7 +23,7 @@ function Signup() {
     formData.append('avatar', data.avatar[0]);
     
     axios
-    .post("http://localhost:8000/api/v1/user/createAccount", formData, {
+    .post(`${conf.serverUrl}/api/v1/user/createAccount`, formData, {
       headers : { 'Content-Type' : 'multipart/form-data'}
     })
     .then((res)=>{

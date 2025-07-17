@@ -5,6 +5,7 @@ import { FaCopy, FaPlus } from "react-icons/fa";
 import { toast, Zoom } from 'react-toastify';
 import {useForm} from "react-hook-form";
 import {Input, Select, DateInput} from "../Components/export.js"
+import conf from "../config/config.js";
 
 function Project() {
 
@@ -46,7 +47,7 @@ function Project() {
   const toggleVisibility = async () => {
     axios
     .patch(
-      `http://localhost:8000/api/v1/project/toggleVisibilityStatus?projectId=${id}`,
+      `${conf.serverUrl}/api/v1/project/toggleVisibilityStatus?projectId=${id}`,
       {},
       {
         headers: {'Authorization' : `Bearer ${localStorage.getItem("accessToken")}`},
@@ -64,7 +65,7 @@ function Project() {
   useEffect(()=>{
     
     axios
-    .get(`http://localhost:8000/api/v1/project/getProjectInfo?projectId=${id}`, {withCredentials: true})
+    .get(`${conf.serverUrl}/api/v1/project/getProjectInfo?projectId=${id}`, {withCredentials: true})
     .then((res)=>{
       setProjectInfo(res.data);
       setProjectVisibility(res.data["visibilityStatus"]);

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from '../Contexts/export.js';
 import { toast, Zoom } from 'react-toastify';
+import conf from "../config/config.js";
 
 function AddProject(props) {
 
@@ -38,7 +39,7 @@ function AddProject(props) {
         }
 
         axios.post(
-            "http://localhost:8000/api/v1/project/createProject", 
+            `${conf.serverUrl}/api/v1/project/createProject`, 
             formData,
             {
                 headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},

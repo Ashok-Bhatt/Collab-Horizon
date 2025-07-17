@@ -4,6 +4,7 @@ import axios from "axios";
 import { UserContext } from '../Contexts/export.js';
 import { useContext } from 'react';
 import { toast, Zoom, ToastContainer } from 'react-toastify';
+import conf from "../config/config.js";
 
 function Login() {
 
@@ -18,7 +19,7 @@ function Login() {
 
   const getUserInfo = (id) => {
     axios
-    .get(`http://localhost:8000/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
+    .get(`${conf.serverUrl}/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
     .then((res)=>{
       if (res.data.length > 0){
         changeUser(res.data[0]);
@@ -47,7 +48,7 @@ function Login() {
     formData.append('email', data.email);
     
     axios
-    .post("http://localhost:8000/api/v1/user/login", formData, {
+    .post(`${conf.serverUrl}/api/v1/user/login`, formData, {
       headers : { 'Content-Type' : 'multipart/form-data'},
       withCredentials: true,
     })

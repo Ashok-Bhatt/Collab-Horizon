@@ -3,6 +3,7 @@ import { UserContext } from '../Contexts/export.js'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, Zoom } from 'react-toastify';
+import conf from "../config/config.js";
 
 function Navbar() {
 
@@ -14,7 +15,7 @@ function Navbar() {
     const logout = () => {
         axios
         .post(
-            "http://localhost:8000/api/v1/user/logout", 
+            `${conf.serverUrl}/api/v1/user/logout`, 
             { withCredentials: true }, 
             {
                 headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`}

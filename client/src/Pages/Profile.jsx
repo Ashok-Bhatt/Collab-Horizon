@@ -5,6 +5,7 @@ import {SocialProfileBlock, ProjectBlock, MessageBox} from "../Components/export
 import { FaPencilAlt } from "react-icons/fa";
 import { UserContext } from '../Contexts/export.js';
 import { toast, Zoom } from 'react-toastify';
+import conf from "../config/config.js";
 
 function Profile() {
 
@@ -47,7 +48,7 @@ function Profile() {
       formData.append("coverImage", coverImageFile);
 
       axios
-      .patch("http://localhost:8000/api/v1/user/updateCoverImage", formData, {
+      .patch(`${conf.serverUrl}/api/v1/user/updateCoverImage`, formData, {
         headers: "multipart/form-data",
         withCredentials: true,
       })
@@ -85,7 +86,7 @@ function Profile() {
       formData.append("avatar", avatarFile);
 
       axios
-      .patch("http://localhost:8000/api/v1/user/updateAvatar", formData, {
+      .patch(`${conf.serverUrl}/api/v1/user/updateAvatar`, formData, {
         headers: "multipart/form-data",
         withCredentials: true,
       })
@@ -116,7 +117,7 @@ function Profile() {
 
   useEffect(()=>{
     axios
-    .get(`http://localhost:8000/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
+    .get(`${conf.serverUrl}/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
     .then((res)=>{
       if (res.data.length > 0){
         setUserData(res.data[0]);
