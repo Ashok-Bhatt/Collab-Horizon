@@ -7,7 +7,7 @@ import {ToastContainer, Zoom} from "react-toastify"
 function App() {
 
   const {user, changeUser} = useContext(UserContext);
-  const {theme, toggleTheme} = useContext(ThemeContext)
+  const {theme, toggleTheme} = useContext(ThemeContext);
 
   useEffect(()=>{
     if (localStorage.getItem("loggedInUser")){

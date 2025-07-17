@@ -17,30 +17,6 @@ function Login() {
     formState: {errors, isSubmitting}
   } = useForm();
 
-  const getUserInfo = (id) => {
-    axios
-    .get(`${conf.serverUrl}/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
-    .then((res)=>{
-      if (res.data.length > 0){
-        changeUser(res.data[0]);
-        localStorage.setItem("loggedInUser", JSON.stringify(res.data[0]));
-      }
-    })
-    .catch((error)=>{
-      toast.error("Couldn't fetch user info", {
-          position: "bottom-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Zoom,
-      });
-    })
-  }
-
   const onSubmit = async (data)=>{
     
     const formData = new FormData();

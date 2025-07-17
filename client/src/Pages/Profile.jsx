@@ -54,7 +54,7 @@ function Profile() {
       })
       .then((res)=>{
         setUserData((prev)=>(
-          {...prev, ["coverImage"] : res.data["image"]}
+          {...prev, ["coverImage"] : res.data.data["image"]}
         ))
       })
       .catch((error)=>{
@@ -92,7 +92,7 @@ function Profile() {
       })
       .then((res)=>{
         setUserData((prev)=>(
-          {...prev, ["avatar"] : res.data["image"]}
+          {...prev, ["avatar"] : res.data.data["image"]}
         ))
       })
       .catch((error)=>{
@@ -119,8 +119,8 @@ function Profile() {
     axios
     .get(`${conf.serverUrl}/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
     .then((res)=>{
-      if (res.data.length > 0){
-        setUserData(res.data[0]);
+      if (res.data.data.length > 0){
+        setUserData(res.data.data[0]);
       }
     })
     .catch((error)=>{

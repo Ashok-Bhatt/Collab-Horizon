@@ -4,6 +4,7 @@ import {nanoid} from "nanoid";
 import {getProjectWithFields} from "../utils/aggregationPipeline.js"
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 const createProject = async (req, res) => {
 
@@ -11,7 +12,7 @@ const createProject = async (req, res) => {
     
     const {projectName, projectTagline, projectDescription, startDate, deadline, visibilityStatus, backgroundColor, foregroundColor} = req.body;
 
-    let projectImage;
+    let projectImage, projectImageUrl;
     if (req.files && req.files.projectImage){
         if (Array.isArray(req.files.projectImage) && req.files.projectImage.length > 0){
             projectImage = req.files.projectImage[0].path;
@@ -28,12 +29,18 @@ const createProject = async (req, res) => {
         throw new ApiError(400, "Project tagline is required! Kindly enter a one-liner description of project.");
     }
 
+    if (projectImage){
+        const imageUploadResponse = await uploadOnCloudinary(projectImage);
+        if (imageUploadResponse){
+            projectImageUrl = imageUploadResponse.url;
+        }
+    }
 
     const newProject = await Project.create({
         projectName,
         projectTagline,
         projectDescription,
-        projectImage,
+        projectImage : projectImageUrl,
         startDate,
         deadline,
         visibilityStatus,

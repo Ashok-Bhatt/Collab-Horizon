@@ -35,7 +35,7 @@ const removeFromCloudinary = async (publicId) => {
 
     try{
         if (!publicId) return null;
-        const response = await cloudinary.uploader.destroy(publicId);
+        const response = await cloudinary.uploader.destroy("Collab Horizon/" + publicId);
         return response;
     } catch (error){
         return null;

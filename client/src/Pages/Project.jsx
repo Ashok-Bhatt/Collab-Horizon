@@ -67,8 +67,9 @@ function Project() {
     axios
     .get(`${conf.serverUrl}/api/v1/project/getProjectInfo?projectId=${id}`, {withCredentials: true})
     .then((res)=>{
-      setProjectInfo(res.data);
-      setProjectVisibility(res.data["visibilityStatus"]);
+      console.log(res.data.data[0]);
+      setProjectInfo(res.data.data[0]);
+      setProjectVisibility(res.data.data[0]["visibilityStatus"]);
     })
     .catch((error)=>{
       showErrorText("Couldn't fetch project info");
@@ -104,7 +105,7 @@ function Project() {
             <h3 className='text-3xl'>Tasks</h3>
             {
               projectInfo && (
-                (projectInfo["tasks"].length>0) ? (
+                (projectInfo["tasks"]?.length>0) ? (
                   <div className="flex flex-wrap">
                     
                   </div>

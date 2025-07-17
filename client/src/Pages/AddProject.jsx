@@ -16,6 +16,7 @@ function AddProject(props) {
 
     const navigate = useNavigate();
     const {user, changeUser} = useContext(UserContext);
+    console.log(user);
 
     const onSubmit = async (data)=>{
 
@@ -25,8 +26,6 @@ function AddProject(props) {
         formData.append('projectTagline', data.projectTagline);
         formData.append('projectDescription', data.email);
         formData.append('srcCodeLink', data.scrCodeLink);
-        formData.append('backgroundColor', data.backgroundColor);
-        formData.append('foregroundColor', data.foregroundColor);
 
         if (data.projectImage){
             formData.append('projectImage', data.projectImage[0]);
@@ -47,13 +46,15 @@ function AddProject(props) {
             }
         )
         .then((res)=>{
+            console.log(res);
             const newUserData = user;
-            newUserData[projects].push_back(res.data.newProject);
+            newUserData["projects"].push(res.data.data);
             changeUser(newUserData);
-            localStorage.setItem(JSON.stringify(newUserData));
-            navigate("/dashboard");
+            localStorage.setItem("loggedInUser", JSON.stringify(newUserData));
+            navigate("/dashboard"); 
         })
         .catch((error)=>{
+            console.log(error);
             toast.error("Couldn't create new project", {
                 position: "bottom-center",
                 autoClose: 2000,
@@ -155,33 +156,6 @@ function AddProject(props) {
                             <input type="date" className='border-2' {
                                 ...register(
                                 "deadline",
-                                )
-                            }/>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* Foreground and Background Color */}
-                <div className='flex flex-col pad-y-2'>
-                    <div className="flex">
-
-                        {/* Foreground Color */}
-                        <div className="flex gap-x-5">
-                            <label className='font-semibold'>Foreground Color</label>
-                            <input type="color" className='border-2' {
-                                ...register(
-                                "foregroundColor",
-                                )
-                            }/>
-                        </div>
-
-                        {/* Background Color */}
-                        <div className="flex gap-x-5">
-                            <label className='font-semibold'>Background Color</label>
-                            <input type="color" className='border-2' {
-                                ...register(
-                                "backgroundColor",
                                 )
                             }/>
                         </div>
