@@ -4,7 +4,7 @@ import {useNavigate, useParams} from "react-router-dom"
 import { FaCopy, FaPlus } from "react-icons/fa";
 import { toast, Zoom } from 'react-toastify';
 import {useForm} from "react-hook-form";
-import {Input, Select, DateInput} from "../Components/export.js"
+import {Input, Select, DateInput, TodoBlock, ToggleButton} from "../Components/export.js"
 import conf from "../config/config.js";
 
 function Project() {
@@ -67,14 +67,12 @@ function Project() {
     axios
     .get(`${conf.serverUrl}/api/v1/project/getProjectInfo?projectId=${id}`, {withCredentials: true})
     .then((res)=>{
-      console.log(res.data.data[0]);
       setProjectInfo(res.data.data[0]);
       setProjectVisibility(res.data.data[0]["visibilityStatus"]);
     })
     .catch((error)=>{
       showErrorText("Couldn't fetch project info");
     })
-    
   }, [])
 
   return (
@@ -88,9 +86,7 @@ function Project() {
             </div>
             <div className="flex gap-x-5 items-center">
               <p className="text-lg text-gray-400">{projectVisibility ? "Public" : "Private"}</p>
-              <div className="flex h-[30px] w-[60px] rounded-full bg-red-200"  onClick={()=>toggleVisibility()} style={{justifyContent:(projectVisibility==true ? "flex-start" : "flex-end")}}>
-                <div className="h-[30px] w-[30px] rounded-full bg-blue-200"></div>
-              </div>
+              <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility}/>
             </div>
           </div>
           <div className="flex w-full border rounded-lg overflow-hidden">
@@ -106,8 +102,12 @@ function Project() {
             {
               projectInfo && (
                 (projectInfo["tasks"]?.length>0) ? (
-                  <div className="flex flex-wrap">
-                    
+                  <div className="flex flex-wrap gap-x-2">
+                    {
+                      projectInfo["tasks"].map((task)=>(
+                        <TodoBlock todoInfo={task} key={task?._id} />
+                      ))
+                    }
                   </div>
                 ) : (
                 <div className='flex flex-col bg-gray-300 h-[200px] w-full justify-center items-center rounded border'>

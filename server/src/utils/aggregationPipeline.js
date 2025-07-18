@@ -1,5 +1,6 @@
 import {User} from "../models/user.model.js"
 import {Project} from "../models/project.model.js"
+import {MainTodo} from "../models/mainTodo.model.js"
 
 import mongoose from "mongoose"
 
@@ -97,10 +98,11 @@ const getProjectWithFields = async (projectId, authorization=false) => {
 }
 
 const getTodosWithFields = async (todoId) => {
-    return await User.aggregate([
+
+    return await MainTodo.aggregate([
         {
             $match : {
-                _id : todoId,
+                _id : new mongoose.Types.ObjectId(todoId),
             }
         },
         {

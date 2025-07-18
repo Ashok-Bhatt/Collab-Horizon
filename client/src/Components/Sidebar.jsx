@@ -23,6 +23,14 @@ function Sidebar() {
     {
       text : "Settings",
       link : "/settings",
+    },
+    {
+      text: "About",
+      link : "/about",
+    },
+    {
+      text: "Contact",
+      link: "/contact",
     }
   ]
 

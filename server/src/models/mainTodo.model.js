@@ -42,26 +42,6 @@ const mainTodoSchema = new Schema({
         ref: "User",
         default: false,
     }
-    // doneBy: {
-    //     type : [
-    //         {
-    //             member: {
-    //                 type: Schema.Types.ObjectId,
-    //                 ref: "User",
-    //                 required: true,
-    //             },
-    //             contribution : [
-    //                 {
-    //                     type: Schema.Types.ObjectId,
-    //                     ref: "SubTodo",
-    //                     required: true,
-
-    //                 }
-    //             ]
-    //         },
-    //     ],
-    //     default : [],
-    // },
 }, {
     timestamps: true,
 })

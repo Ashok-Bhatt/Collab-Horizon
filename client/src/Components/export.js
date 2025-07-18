@@ -10,6 +10,8 @@ import ToggleButton from "./ToggleButton.jsx";
 import Input from "./Input.jsx";
 import Select from "./Select.jsx";
 import DateInput from "./DateInput.jsx";
+import TodoBlock from "./TodoBlock.jsx";
+import SubTodoBlock from "./SubTodoBlock.jsx";
 
 export {
     AuthLayout,
@@ -22,5 +24,7 @@ export {
     ToggleButton,
     Input,
     Select,
-    DateInput
+    DateInput,
+    TodoBlock,
+    SubTodoBlock,
 }

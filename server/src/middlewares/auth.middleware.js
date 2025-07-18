@@ -10,7 +10,7 @@ const verifyJWT = async (req, res, next) => {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token){
-            throw new ApiError(statusCode = 401, message="Access token not provided User");
+            throw new ApiError(401, "Access token not provided User");
         }
 
         const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET);
@@ -18,13 +18,13 @@ const verifyJWT = async (req, res, next) => {
         const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
 
         if (!user){
-            throw new ApiError(statusCode = 401, message="Invalid Access Token");
+            throw new ApiError(401, "Invalid Access Token");
         }
 
         req.user = user;
         next();
     } catch (error){
-        throw new ApiError(statusCode=401, message="Valid Access Token Required!");
+        throw new ApiError(401, "Valid Access Token Required!");
     }
 }
 

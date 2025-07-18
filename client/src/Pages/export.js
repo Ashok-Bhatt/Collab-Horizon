@@ -9,6 +9,8 @@ import Todo from "./Todo.jsx";
 import Dashboard from "./Dashboard.jsx";
 import Settings from "./Settings.jsx";
 import AddProject from "./AddProject.jsx";
+import Contact from "./Contact.jsx";
+import About from "./About.jsx";
 
 export {
     Login,
@@ -22,4 +24,6 @@ export {
     Explore,
     Settings,
     AddProject,
+    Contact,
+    About
 }

@@ -1,6 +1,29 @@
 import { MainTodo } from "../models/mainTodo.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { getTodosWithFields } from "../utils/aggregationPipeline.js";
+
+const getTodoInfo = async (req, res) => {
+
+    const todoId = req.query?.todoId;
+    const projectVisibility = req.isProjectVisible;
+    const isMember = req.isMember;
+
+    if (!projectVisibility && !isMember){
+        throw new ApiError(403, "You are not authorized to see the todo information.");
+    }
+
+    const todo = await getTodosWithFields(todoId);
+
+    if (!todo){
+        throw new ApiError(404, "Invalid Todo Id");
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, todo, "Todo info fetched successfully"));
+}
+
 
 const addTodo = async (req, res) => {
 
@@ -185,6 +208,7 @@ const changeTodoPriority = async (req, res) => {
 
 
 export {
+    getTodoInfo,
     addTodo,
     removeTodo,
     updateTodo,

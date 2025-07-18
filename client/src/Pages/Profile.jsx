@@ -12,6 +12,7 @@ function Profile() {
   const [userData, setUserData] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [coverImageFile, setCoverImageFile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const avatarInput = useRef(null);
   const coverImageInput = useRef(null);
   
@@ -145,10 +146,10 @@ function Profile() {
       <div className='min-h-[300px] w-full relative bg-blue-300'>
         <img src={userData?.coverImage} className='h-full w-full'/>
         <p className='absolute text-white font-bold text-3xl bottom-[25px] right-[50px]'>{userData?.username}</p>
-        {(user?._id && user._id === id)?(<>
-          <div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full border-2 bg-white' onClick={updateCoverImage}>
+        {(user?._id && user._id === id && !isEditing)?(<>
+          {<div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full border-2 bg-white' onClick={()=>setIsEditing(true)}>
             <FaPencilAlt className='text-blue-500 p-3 h-full w-full'/>
-          </div>
+          </div>}
           <input type="file" ref={coverImageInput} onChange={changeCoverImageFile} className='hidden'/>
         </>) : null}
       </div>
@@ -164,10 +165,10 @@ function Profile() {
             <img src={userData?.avatar} className='h-[200px] w-[200px]'/>
           </div>
 
-          {(user?._id && user._id == id)?(<>
+          {/* {(user?._id && user._id == id)?(<>
             <input type="file" ref={avatarInput} onChange={changeAvatarFile} className='hidden'/>
             <button className='rounded-md px-4 py-2 text-white bg-green-400 w-[150px]' onClick={updateAvatar}>Update Avatar</button>
-          </>):null}
+          </>):null} */}
           
         </div>
 

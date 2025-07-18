@@ -4,6 +4,7 @@ import { checkProjectVisibility } from "../middlewares/projectVisibility.middlew
 import { checkUserAuthorization } from "../middlewares/authorization.middleware.js"; 
 
 import {
+    getTodoInfo,
     addTodo,
     removeTodo,
     updateTodo,
@@ -13,6 +14,13 @@ import {
 } from "../controllers/mainTodo.controllers.js";
 
 const router = Router();
+
+router.route("/getTodoInfo").get(
+    verifyJWT,
+    checkUserAuthorization,
+    checkProjectVisibility,
+    getTodoInfo
+)
 
 router.route("/addTodo").post(
     verifyJWT,
