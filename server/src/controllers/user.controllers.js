@@ -313,6 +313,10 @@ const updateProfile = async (req, res) => {
 
     // Validate input
     if (!username.trim() || bio==null || skills==null || socialProfilesLinks==null){
+        console.log(username);
+        console.log(bio);
+        console.log(skills);
+        console.log(socialProfilesLinks);
         throw Error("Every Field is required");
     }
 
@@ -343,7 +347,7 @@ const updateProfile = async (req, res) => {
 
     // Now send response to user
     res.status(200).json(
-        new ApiResponse(200, null, "Data Updated Successfully")
+        new ApiResponse(200, updateResponse, "Data Updated Successfully")
     )
 
 }

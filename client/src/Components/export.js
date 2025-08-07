@@ -12,6 +12,8 @@ import Select from "./Select.jsx";
 import DateInput from "./DateInput.jsx";
 import TodoBlock from "./TodoBlock.jsx";
 import SubTodoBlock from "./SubTodoBlock.jsx";
+import ListItem from "./ListItem.jsx";
+import EditProfile from "./EditProfile.jsx";
 
 export {
     AuthLayout,
@@ -27,4 +29,6 @@ export {
     DateInput,
     TodoBlock,
     SubTodoBlock,
+    ListItem,
+    EditProfile,
 }

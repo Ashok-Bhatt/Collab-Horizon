@@ -33,6 +33,43 @@ function Todo() {
     })
   }
 
+  const onSubmit = (data)=>{
+    const projectId = searchParams.get("projectId");
+    const todoId = searchParams.get("todoId");
+
+    const formData = new FormData();
+    formData.append("subTodoTitle", data.subTodoTitle);
+    formData.append("subTodoDescription", data.subTodoDescription);
+    formData.append("projectId", projectId);
+    formData.append("todoId", todoId);
+
+    axios.post(
+        `${conf.serverUrl}/api/v1/subTodo/addSubTodo`, 
+        formData,
+        {
+            headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},
+            withCredentials: true,
+        }
+    )
+    .then((res)=>{
+      console.log(res.data);
+    })
+    .catch((error)=>{
+        console.log(error);
+        toast.error("Couldn't create new project", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Zoom,
+        });
+    })
+  }
+
   useEffect(()=>{
     const projectId = searchParams.get("projectId");
     const todoId = searchParams.get("todoId");
@@ -77,7 +114,10 @@ function Todo() {
           )}
 
           <div className="flex flex-col w-full gap-y-2">
-            <h3 className='text-3xl'>Sub Tasks</h3>
+            <div className='w-full flex justify-between'>
+              <h3 className='text-3xl'>Tasks</h3>
+              {todoInfo["subTodos"]?.length>0 && <FaPlus className='mt-2 text-3xl' onClick={()=>setShowSubTodoCreationBlock(true)}/>}
+            </div>
             {
               (todoInfo.subTodos && todoInfo.subTodos.length > 0) ? (
                 <div className="flex flex-wrap gap-x-2">
@@ -97,10 +137,15 @@ function Todo() {
 
           <div className="flex flex-col absolute bg-white top-1/2 left-1/2 -translate-1/2 w-1/2 rounded-lg border items-center p-2 gap-y-5" style={{ visibility: showSubTodoCreationBlock ? "visible" : "hidden" }}>
             <h2 className="text-3xl">Add SubTodo</h2>
-            <form className="flex flex-col gap-y-2">
+            <form className="flex flex-col gap-y-2" onSubmit={handleSubmit(onSubmit)}>
               <Input placeholder="Title" inputType="text" {...register("subTodoTitle", { required: "SubTodo title is required" })} errorObj={errors.subTodoTitle} />
               <Input placeholder="Description" inputType="text"{...register("subTodoDescription", { required: "Description is required" })} errorObj={errors.subTodoDescription}
               />
+
+              <div className="flex justify-between">
+                <button type='submit' className="bg-green-400">Add SubTodo</button>
+                <button type='button' onClick={()=>setShowSubTodoCreationBlock(false)} className="bg-red-400">Cancel</button>
+              </div>
             </form>
           </div>
 

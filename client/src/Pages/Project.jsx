@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 import axios from "axios"
 import {useNavigate, useParams} from "react-router-dom"
-import { FaCopy, FaPlus } from "react-icons/fa";
+import { FaCoins, FaCopy, FaPlus } from "react-icons/fa";
 import { toast, Zoom } from 'react-toastify';
 import {useForm} from "react-hook-form";
 import {Input, Select, DateInput, TodoBlock, ToggleButton} from "../Components/export.js"
 import conf from "../config/config.js";
+import { UserContext } from '../Contexts/export.js';
 
 function Project() {
 
@@ -62,6 +63,43 @@ function Project() {
     })
   }
 
+  const submitAddTodo = (data) => {
+
+    const formData = new FormData();
+    formData.append("projectId", id);
+    formData.append("todoTitle", data.todoTitle);
+    formData.append("deadline", data.deadline);
+    formData.append("priority", data.priority);
+    if (data.shortDescription) formData.append("shortDescription", data.shortDescription);
+    if (data.detailedDescription) formData.append("detailedDescription", data.detailedDescription);
+
+    axios.post(
+        `${conf.serverUrl}/api/v1/mainTodo/addTodo`, 
+        formData,
+        {
+            headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},
+            withCredentials: true,
+        }
+    )
+    .then((res)=>{
+      console.log(res.data);
+    })
+    .catch((error)=>{
+        console.log(error);
+        toast.error("Couldn't create new project", {
+            position: "bottom-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Zoom,
+        });
+    })
+  }
+
   useEffect(()=>{
     
     axios
@@ -98,7 +136,10 @@ function Project() {
           </div>
           {projectInfo["projectDescription"] && <p>{projectInfo["projectDescription"]}</p>}
           <div className="flex flex-col w-full gap-y-2">
-            <h3 className='text-3xl'>Tasks</h3>
+            <div className='w-full flex justify-between'>
+              <h3 className='text-3xl'>Tasks</h3>
+              {projectInfo["tasks"]?.length>0 && <FaPlus className='mt-2 text-3xl' onClick={()=>setShowTodoCreationBlock(true)}/>}
+            </div>
             {
               projectInfo && (
                 (projectInfo["tasks"]?.length>0) ? (
@@ -122,12 +163,17 @@ function Project() {
           
           <div className="flex flex-col absolute bg-white top-1/2 left-1/2 -translate-1/2 w-1/2 rounded-lg border items-center p-2 gap-y-5" style={{visibility: (showTodoCreationBlock) ? "visible" : "hidden"}}>
             <h2 className="text-3xl">Add Todo</h2>
-            <form className="flex flex-col gap-y-2">
+            <form className="flex flex-col gap-y-2" onSubmit={handleSubmit(submitAddTodo)}>
               <Input placeholder="Title" inputType="text" {...register("todoTitle", {required: "Todo title is required"})} errorObj={errors.todoTitle}/>
               <Input placeholder="Short Description shown with title" inputType="text" {...register("shortDescription")} errorObj={null}/>
               <Input placeholder="Detailed Description about project" inputType="text" {...register("detailedDescription")} errorObj={null}/>
-              <DateInput placeholder="Deadline" {...register("deadline", {required: "Todo title is required"})} errorObj={errors.deadline}/>
+              <DateInput placeholder="Deadline" {...register("deadline", {required: "Todo deadline is required"})} errorObj={errors.deadline}/>
               <Select label="Priority" options={["Low", "Medium", "High"]} {...register("priority", {required: "Priority is required"})} errorObj={errors.priority}/>
+
+              <div className="flex justify-between">
+                <button type='submit' className="bg-green-400">Add Todo</button>
+                <button type='button' onClick={()=>setShowTodoCreationBlock(false)} className="bg-red-400">Cancel</button>
+              </div>
             </form>
           </div>
         </>

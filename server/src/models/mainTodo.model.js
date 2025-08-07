@@ -40,7 +40,7 @@ const mainTodoSchema = new Schema({
     doneBy: {
         type: Schema.Types.ObjectId,
         ref: "User",
-        default: false,
+        default: null,
     }
 }, {
     timestamps: true,

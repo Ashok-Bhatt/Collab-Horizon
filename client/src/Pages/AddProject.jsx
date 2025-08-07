@@ -26,16 +26,9 @@ function AddProject(props) {
         formData.append('projectTagline', data.projectTagline);
         formData.append('projectDescription', data.email);
         formData.append('srcCodeLink', data.scrCodeLink);
-
-        if (data.projectImage){
-            formData.append('projectImage', data.projectImage[0]);
-        }
-        if (data.startDate){
-            formData.append('startDate', data.startDate);
-        }
-        if (data.deadline){
-            formData.append('deadline', data.deadline);
-        }
+        if (data.projectImage) formData.append('projectImage', data.projectImage[0]);
+        if (data.startDate) formData.append('startDate', data.startDate);
+        if (data.deadline) formData.append('deadline', data.deadline);
 
         axios.post(
             `${conf.serverUrl}/api/v1/project/createProject`, 

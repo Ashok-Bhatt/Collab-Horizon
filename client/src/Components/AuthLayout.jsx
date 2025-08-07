@@ -6,7 +6,7 @@ function AuthLayout(props) {
 
   const {authentication, children} = props;
   const navigate = useNavigate();
-  const {user} = useContext(UserContext);
+  const {user, changeUser} = useContext(UserContext);
 
   useEffect(()=>{
     if (user && !authentication){

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useEffect, useState, useRef, useContext } from 'react'
 import { useParams } from 'react-router-dom';
-import {SocialProfileBlock, ProjectBlock, MessageBox} from "../Components/export.js"
-import { FaPencilAlt } from "react-icons/fa";
+import {SocialProfileBlock, ProjectBlock, MessageBox, EditProfile } from "../Components/export.js"
+import { FaCamera, FaPencilAlt } from "react-icons/fa";
 import { UserContext } from '../Contexts/export.js';
 import { toast, Zoom } from 'react-toastify';
 import conf from "../config/config.js";
@@ -10,9 +10,11 @@ import conf from "../config/config.js";
 function Profile() {
 
   const [userData, setUserData] = useState(null);
+  const [editedData, setEditedData] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [coverImageFile, setCoverImageFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoggedInUserProfile, setIsLoggedInUserProfile] = useState(false);
   const avatarInput = useRef(null);
   const coverImageInput = useRef(null);
   
@@ -116,16 +118,30 @@ function Profile() {
   }, [avatarFile]);
 
 
+  // To initialize the updated data with current data whenever a click event happens
+  useEffect(()=>{
+    if (isEditing){
+      setEditedData(userData);
+    } else {
+      setEditedData(null);
+    }
+  }, [isEditing])
+
+
   useEffect(()=>{
     axios
     .get(`${conf.serverUrl}/api/v1/user/getUserInfo/${id}`, { withCredentials: true })
     .then((res)=>{
       if (res.data.data.length > 0){
         setUserData(res.data.data[0]);
+        if (id === user?._id){
+          setIsLoggedInUserProfile(true);
+        }
       }
     })
     .catch((error)=>{
-      toast.error("Couldn't fetch user info", {
+      console.log(error);
+      toast.error("couldn't fetch user info", {
         position: "bottom-center",
         autoClose: 2000,
         hideProgressBar: false,
@@ -140,15 +156,15 @@ function Profile() {
   }, [])
 
   return (
-    <div className='flex flex-col w-full h-full overflow-y-auto'>
+    <div className='flex flex-col relative w-full h-full overflow-y-auto'>
 
       {/* Cover Image */}
       <div className='min-h-[300px] w-full relative bg-blue-300'>
         <img src={userData?.coverImage} className='h-full w-full'/>
-        <p className='absolute text-white font-bold text-3xl bottom-[25px] right-[50px]'>{userData?.username}</p>
-        {(user?._id && user._id === id && !isEditing)?(<>
-          {<div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full border-2 bg-white' onClick={()=>setIsEditing(true)}>
-            <FaPencilAlt className='text-blue-500 p-3 h-full w-full'/>
+        <p className='absolute text-white font-bold text-3xl bottom-[25px] right-[50px] text-shadow-lg text-shadow-black'>{userData?.username}</p>
+        {(isLoggedInUserProfile && !isEditing)?(<>
+          {<div className='h-[50px] w-[50px] absolute top-[25px] right-[25px] rounded-full border-2 bg-white' onClick={updateCoverImage}>
+            <FaCamera className='text-blue-500 p-3 h-full w-full'/>
           </div>}
           <input type="file" ref={coverImageInput} onChange={changeCoverImageFile} className='hidden'/>
         </>) : null}
@@ -161,12 +177,14 @@ function Profile() {
         <div className='flex flex-col h-[200px] w-[450px] relative items-center justify-end p-2 gap-y-2'>
 
           {/* User Avatar */}
-          <div className='rounded-full border-5 border-white overflow-hidden h-[200px] w-[200px] absolute -top-[100px]'>
+          <div className='rounded-full border-5 border-white overflow-hidden h-[200px] w-[200px] absolute -top-[100px]' onClick={(isLoggedInUserProfile)?updateAvatar:null}>
             <img src={userData?.avatar} className='h-[200px] w-[200px]'/>
           </div>
 
+          <input type="file" ref={avatarInput} onChange={changeAvatarFile} className='hidden'/>
+
           {/* {(user?._id && user._id == id)?(<>
-            <input type="file" ref={avatarInput} onChange={changeAvatarFile} className='hidden'/>
+            
             <button className='rounded-md px-4 py-2 text-white bg-green-400 w-[150px]' onClick={updateAvatar}>Update Avatar</button>
           </>):null} */}
           
@@ -174,6 +192,12 @@ function Profile() {
 
         {/* Right Section */}
         <div className='flex flex-col flex-grow py-5 gap-y-4'>
+
+          {/* Profile Editing Option */}
+          <button className='flex items-center px-5 py-1 text-lg gap-2 bg-green-400 w-max self-end rounded' onClick={()=>setIsEditing(true)}>
+            <FaPencilAlt /> Edit
+          </button>
+
           {/* Bio Section */}
           <div className="flex flex-col gap-y-1 p-1">
             <p className="text-2xl font-semibold">Bio</p>
@@ -221,9 +245,16 @@ socialProfilesLinks?.linkedin}/>
 socialProfilesLinks?.twitter}/>
             <SocialProfileBlock profileIcon = {<img src="/Images/website_logo.png"/>} appName="Portfolio" profileLink={userData?.
 socialProfilesLinks?.portfolioWebsite}/>
+
+            {
+              userData?.socialProfilesLinks?.others.map((socialProfile)=>(
+                <SocialProfileBlock profileIcon = {<img src="/Images/website_logo.png"/>} appName={socialProfile.appName} profileLink={socialProfile.profileLink} key={socialProfile._id}/>
+              ))
+            }
         </div>
       </div>
 
+      {editedData && <EditProfile editedData={editedData} setEditedData={setEditedData} setIsEditing={setIsEditing} setUserData={setUserData}/>}
     </div>
   )
 }
