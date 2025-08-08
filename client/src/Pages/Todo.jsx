@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import axios from "axios"
 import {useNavigate, useParams, useSearchParams} from "react-router-dom"
 import { FaCopy, FaPlus } from "react-icons/fa";
-import { toast, Zoom } from 'react-toastify';
+import { showErrorToast } from '../Utils/toastUtils.js';
 import {useForm} from "react-hook-form";
 import {Input, Select, DateInput, TodoBlock, ToggleButton, SubTodoBlock } from "../Components/export.js"
 import conf from "../config/config.js";
@@ -19,19 +19,7 @@ function Todo() {
     handleSubmit
   } = useForm();
 
-  const showErrorText = (toastText) => { 
-    toast.error(toastText, {
-      position: "bottom-center",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Zoom,
-    })
-  }
+
 
   const onSubmit = (data)=>{
     const projectId = searchParams.get("projectId");
@@ -56,17 +44,7 @@ function Todo() {
     })
     .catch((error)=>{
         console.log(error);
-        toast.error("Couldn't create new project", {
-            position: "bottom-center",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Zoom,
-        });
+        showErrorToast("Couldn't create new project");
     })
   }
 
@@ -84,7 +62,7 @@ function Todo() {
       setTodoInfo(res.data.data[0]);
     })
     .catch((error)=>{
-      showErrorText("Couldn't fetch todo data")
+      showErrorToast("Couldn't fetch todo data")
     })
   }, [])
 

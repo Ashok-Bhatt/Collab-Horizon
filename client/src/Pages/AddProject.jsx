@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from '../Contexts/export.js';
-import { toast, Zoom } from 'react-toastify';
+import { showErrorToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function AddProject(props) {
@@ -48,17 +48,7 @@ function AddProject(props) {
         })
         .catch((error)=>{
             console.log(error);
-            toast.error("Couldn't create new project", {
-                position: "bottom-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                transition: Zoom,
-            });
+            showErrorToast("Couldn't create new project");
         })
         
     }

@@ -31,4 +31,5 @@ export {
     SubTodoBlock,
     ListItem,
     EditProfile,
+    OptionBlock
 }

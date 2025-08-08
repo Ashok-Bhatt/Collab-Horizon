@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import {SocialProfileBlock, ProjectBlock, MessageBox, EditProfile } from "../Components/export.js"
 import { FaCamera, FaPencilAlt } from "react-icons/fa";
 import { UserContext } from '../Contexts/export.js';
-import { toast, Zoom } from 'react-toastify';
+import { showErrorToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Profile() {
@@ -61,17 +61,7 @@ function Profile() {
         ))
       })
       .catch((error)=>{
-          toast.error("Couldn't upload cover image", {
-              position: "bottom-center",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-              transition: Zoom,
-          });
+          showErrorToast("Couldn't upload cover image");
       })
       .finally(()=>{
         setCoverImageFile(null);
@@ -99,17 +89,7 @@ function Profile() {
         ))
       })
       .catch((error)=>{
-        toast.error("Couldn't upload profile pic", {
-          position: "bottom-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Zoom,
-        });
+        showErrorToast("Couldn't upload profile pic");
       })
       .finally(()=>{
         setAvatarFile(null);
@@ -141,17 +121,7 @@ function Profile() {
     })
     .catch((error)=>{
       console.log(error);
-      toast.error("couldn't fetch user info", {
-        position: "bottom-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Zoom,
-      });
+      showErrorToast("couldn't fetch user info");
     })
   }, [])
 

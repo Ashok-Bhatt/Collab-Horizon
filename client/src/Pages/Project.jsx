@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useContext } from 'react'
 import axios from "axios"
 import {useNavigate, useParams} from "react-router-dom"
 import { FaCoins, FaCopy, FaPlus } from "react-icons/fa";
-import { toast, Zoom } from 'react-toastify';
+import { showErrorToast } from '../Utils/toastUtils.js';
 import {useForm} from "react-hook-form";
-import {Input, Select, DateInput, TodoBlock, ToggleButton} from "../Components/export.js"
+import {Input, Select, DateInput, TodoBlock, ToggleButton, OptionBlock} from "../Components/export.js"
 import conf from "../config/config.js";
 import { UserContext } from '../Contexts/export.js';
 
@@ -15,6 +15,7 @@ function Project() {
   const [showTodoCreationBlock, setShowTodoCreationBlock] = useState(false);
   const [projectInfo, setProjectInfo] = useState(null);
   const [projectVisibility, setProjectVisibility] = useState(false);
+  const [showProjectDeleteOption, setShowProjectDeleteOption] = useState(false);
 
   const {
     register,
@@ -31,19 +32,7 @@ function Project() {
     }, 2000);
   }
 
-  const showErrorText = (toastText) => { 
-    toast.error(toastText, {
-      position: "bottom-center",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Zoom,
-    })
-  }
+
 
   const toggleVisibility = async () => {
     axios
@@ -59,7 +48,24 @@ function Project() {
       setProjectVisibility((prev)=>!prev)
     })
     .catch((error)=>{
-      showErrorText(projectVisibility ? "Couldn't make project private" : "Couldn't make project public")
+      showErrorToast(projectVisibility ? "Couldn't make project private" : "Couldn't make project public")
+    })
+  }
+
+  const deleteProject = () => {
+    axios
+    .delete(
+      `${conf.serverUrl}/api/v1/project/removeProject?projectId=${id}`,
+      {
+        headers: {'Authorization' : `Bearer ${localStorage.getItem("accessToken")}`},
+        withCredentials: true,
+      }
+    )
+    .then((res)=>{
+      console.log("project deleted!");
+    })
+    .catch((error)=>{
+      console.log("project not deleted!");
     })
   }
 
@@ -86,17 +92,7 @@ function Project() {
     })
     .catch((error)=>{
         console.log(error);
-        toast.error("Couldn't create new project", {
-            position: "bottom-center",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Zoom,
-        });
+        showErrorToast("Couldn't create new project");
     })
   }
 
@@ -109,7 +105,7 @@ function Project() {
       setProjectVisibility(res.data.data[0]["visibilityStatus"]);
     })
     .catch((error)=>{
-      showErrorText("Couldn't fetch project info");
+      showErrorToast("Couldn't fetch project info");
     })
   }, [])
 
@@ -134,6 +130,7 @@ function Project() {
               <FaCopy className='h-full' onClick={()=>copyProjectCode()}/>
             </div>
           </div>
+          <button className='bg-red-500' onClick={()=>setShowProjectDeleteOption(true)}>Delete Project</button>
           {projectInfo["projectDescription"] && <p>{projectInfo["projectDescription"]}</p>}
           <div className="flex flex-col w-full gap-y-2">
             <div className='w-full flex justify-between'>
@@ -146,7 +143,7 @@ function Project() {
                   <div className="flex flex-wrap gap-x-2">
                     {
                       projectInfo["tasks"].map((task)=>(
-                        <TodoBlock todoInfo={task} key={task?._id} />
+                        <TodoBlock todoInfo={task} key={task?._id} showDeleteButton={true}/>
                       ))
                     }
                   </div>
@@ -176,6 +173,7 @@ function Project() {
               </div>
             </form>
           </div>
+          {showProjectDeleteOption && <OptionBlock mainText="Do you want to delete this project?" acceptText="Delete" cancelText="Cancel" acceptCallback={deleteProject} cancelCallback={()=>setShowProjectDeleteOption(false)}/>}
         </>
       }
     </div>

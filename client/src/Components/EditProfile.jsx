@@ -3,7 +3,7 @@ import {Input, ListItem} from "./export.js"
 import {FaPlus} from "react-icons/fa"
 import {useForm} from "react-hook-form"
 import {v4 as uuid} from "uuid"
-import { toast, Zoom } from 'react-toastify'
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js'
 import axios from 'axios'
 import conf from "../config/config.js"
 import { useContext } from 'react'
@@ -31,33 +31,7 @@ function EditProfile(props) {
     }
   });
 
-  const showErrorText = (message) => {
-    toast.error(message, {
-      position: "bottom-center",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Zoom,
-    });
-  }
 
-  const showSuccessMessage = (message) => {
-    toast.success(message, {
-      position: "bottom-center",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Zoom,
-    })
-  }
 
   const removeSkill = (index) => {
     setEditedData((prev)=>({
@@ -68,7 +42,7 @@ function EditProfile(props) {
 
   const addSkill = () => {
     if (newSkill.trim() === ""){
-        showErrorText("Skill name can't be empty");
+        showErrorToast("Skill name can't be empty");
     } else {
       setEditedData((prev)=>({
         ...prev,
@@ -119,10 +93,10 @@ function EditProfile(props) {
       changeUser(updatedData);
       setUserData(updatedData);
       setIsEditing(false);
-      showSuccessMessage("Data updated successfully!");
+      showAcceptToast("Data updated successfully!");
     })
     .catch((error)=>{
-        showErrorText("Couldn't update user profile");
+        showErrorToast("Couldn't update user profile");
     })
 
   }

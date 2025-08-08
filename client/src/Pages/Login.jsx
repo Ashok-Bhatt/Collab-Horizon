@@ -3,7 +3,7 @@ import {useForm} from "react-hook-form";
 import axios from "axios";
 import { UserContext } from '../Contexts/export.js';
 import { useContext } from 'react';
-import { toast, Zoom, ToastContainer } from 'react-toastify';
+import { showErrorToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Login() {
@@ -36,17 +36,7 @@ function Login() {
       navigate("/");
     })
     .catch((error)=>{
-      toast.error("Something went wrong! login unsuccessful!", {
-        position: "bottom-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Zoom,
-      });
+      showErrorToast("Something went wrong! login unsuccessful!");
     })
 
   }
