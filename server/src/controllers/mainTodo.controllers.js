@@ -28,7 +28,7 @@ const getTodoInfo = async (req, res) => {
 const addTodo = async (req, res) => {
 
     const isAdmin = req.isAdmin;
-    const {projectId, todoTitle, shortDescription, detailedDescription, deadline, priority, status, backgroundColor, foregroundColor} = req.body;
+    const {projectId, todoTitle, shortDescription, detailedDescription, deadline, priority, status} = req.body;
 
     if (!projectId){
         throw new ApiError(400, "Project Id required!");
@@ -47,8 +47,6 @@ const addTodo = async (req, res) => {
             deadline,
             priority,
             status,
-            backgroundColor,
-            foregroundColor,
         }
     )
 
@@ -99,7 +97,7 @@ const removeTodo = async (req, res) => {
 const updateTodo = async (req, res) => {
 
     const isAdmin = req.isAdmin;
-    const {projectId, todoId, todoTitle, shortDescription, detailedDescription, deadline, priority, status, backgroundColor, foregroundColor} = req.body;
+    const {projectId, todoId, todoTitle, shortDescription, detailedDescription, deadline, priority, status} = req.body;
 
     if (!projectId){
         throw new ApiError(400, "Project Id required!");
@@ -118,8 +116,6 @@ const updateTodo = async (req, res) => {
             deadline,
             priority,
             status,
-            backgroundColor,
-            foregroundColor,
         },
         {
             new: true,

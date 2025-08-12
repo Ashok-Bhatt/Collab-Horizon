@@ -10,7 +10,7 @@ const createProject = async (req, res) => {
 
     const loggedInUser = req.user;
     
-    const {projectName, projectTagline, projectDescription, startDate, deadline, visibilityStatus, backgroundColor, foregroundColor} = req.body;
+    const {projectName, projectTagline, projectDescription, startDate, deadline, visibilityStatus} = req.body;
 
     let projectImage, projectImageUrl;
     if (req.files && req.files.projectImage){
@@ -44,8 +44,6 @@ const createProject = async (req, res) => {
         startDate,
         deadline,
         visibilityStatus,
-        backgroundColor,
-        foregroundColor,
         projectGroup : [                // Initially a project should have only admin, that is the user who created project
             {
                 groupMember : loggedInUser._id,
@@ -92,14 +90,14 @@ const getProjectInfo = async(req, res) => {
 
 const changeInfo = async (req, res) => {
 
-    const {projectId, projectTagline, projectDescription, startDate, deadline, visibilityStatus, srcCodeLink, backgroundColor, foregroundColor} = req.body;
+    const {projectId, projectName, projectImage, projectTagline, projectDescription, startDate, deadline, visibilityStatus, srcCodeLink} = req.body;
     const isAdmin = req.isAdmin;
 
     if (!isAdmin){
         throw new ApiError(403, "You are not authorized to make modifications in this project");
     }
 
-    if (!projectTagline.trim){
+    if (!projectTagline.trim()){
         throw new ApiError(400, "Project tagline is required");
     }
 
@@ -112,14 +110,14 @@ const changeInfo = async (req, res) => {
     const updatedProject = await Project.findByIdAndUpdate(
         projectId,
         {
+            projectName,
+            projectImage,
             projectTagline,
             projectDescription,
             startDate,
             deadline,
             visibilityStatus,
             srcCodeLink,
-            backgroundColor,
-            foregroundColor,
         },
         {
             new : true,

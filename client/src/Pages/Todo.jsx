@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from "axios"
-import {useNavigate, useParams, useSearchParams} from "react-router-dom"
-import { FaCopy, FaPlus } from "react-icons/fa";
+import {useSearchParams} from "react-router-dom"
+import { FaPlus } from "react-icons/fa";
+import { MdEdit, MdSave, MdCancel } from 'react-icons/md';
 import { showErrorToast } from '../Utils/toastUtils.js';
 import {useForm} from "react-hook-form";
 import {Input, Select, DateInput, TodoBlock, ToggleButton, SubTodoBlock } from "../Components/export.js"
@@ -12,6 +13,8 @@ function Todo() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [todoInfo, setTodoInfo] = useState(null);
   const [showSubTodoCreationBlock, setShowSubTodoCreationBlock] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedInfo, setEditedInfo] = useState(null);
 
   const {
     register,
@@ -19,7 +22,43 @@ function Todo() {
     handleSubmit
   } = useForm();
 
+  useEffect(()=>{
+    if (isEditing){
+      setEditedInfo(todoInfo);
+    }
+  }, [isEditing]);
 
+  const editTodoDetails = () => {
+    const projectId = searchParams.get("projectId");
+    const todoId = searchParams.get("todoId");
+
+    axios
+    .patch(
+      `${conf.serverUrl}/api/v1/mainTodo/updateTodo`,
+      {
+        projectId: projectId,
+        todoId: todoId,
+        todoTitle: editedInfo.title,
+        shortDescription: editedInfo.shortDescription,
+        detailedDescription: editedInfo.detailedDescription,
+      },
+      {
+        headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},
+        withCredentials: true,
+      },
+    )
+    .then((res)=>{
+      console.log(res.data);
+      setTodoInfo(editedInfo);
+    })
+    .catch((err)=>{
+      console.log(err);
+      showErrorToast("Couldn't update todo");
+    })
+    .finally(()=>{
+      setIsEditing(false);
+    })
+  }
 
   const onSubmit = (data)=>{
     const projectId = searchParams.get("projectId");
@@ -27,7 +66,7 @@ function Todo() {
 
     const formData = new FormData();
     formData.append("subTodoTitle", data.subTodoTitle);
-    formData.append("subTodoDescription", data.subTodoDescription);
+    formData.append("description", data.subTodoDescription);
     formData.append("projectId", projectId);
     formData.append("todoId", todoId);
 
@@ -71,24 +110,66 @@ function Todo() {
       {
         todoInfo && <>
           <div className="flex justify-between items-center">
-            <div className="">
-              <h2 className='text-3xl font-bold'>{todoInfo.title}</h2>
-              <h3 className='text-sm italic text-gray-500'>{`Priority: ${todoInfo.priority}`}</h3>
+            <div className="flex-1">
+              {!isEditing ? (
+                <>
+                  <h2 className='text-3xl font-bold'>{todoInfo.title}</h2>
+                  <h3 className='text-sm italic text-gray-500'>{`Priority: ${todoInfo.priority}`}</h3>
+                </>
+              ) : (
+                <div className='flex flex-col gap-y-2'>
+                  <input 
+                    type="text" 
+                    placeholder="Enter Todo title" 
+                    value={editedInfo?.title ? editedInfo.title : ""} 
+                    onChange={(e)=>setEditedInfo({...editedInfo, title: e.target.value})}
+                    className="text-3xl font-bold bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none"
+                  />
+                  <h3 className='text-sm italic text-gray-500'>{`Priority: ${todoInfo.priority}`}</h3>
+                </div>
+              )}
             </div>
             <div className="flex gap-x-5 items-center">
-              <p className="text-lg text-gray-400">{todoInfo.status}</p>
+              {!isEditing && <p className="text-lg text-gray-400">{todoInfo.status}</p>}
               {/* You can attach a toggle callback later if needed */}
               <ToggleButton toggleState={todoInfo.status === "Completed"} toggleCallback={() => {}} />
+              {/* Edit Button */}
+              {!isEditing && <MdEdit className='h-7 w-7 text-2xl text-blue-500 bg-black rounded-full p-1' onClick={()=>setIsEditing(true)}/>}
+              {/* Save Button */}
+              {isEditing && <MdSave className='h-7 w-7 text-2xl text-green-500 bg-black rounded-full p-1' onClick={()=>editTodoDetails()}/>}
+              {/* Cancel Button */}
+              {isEditing && <MdCancel className='h-7 w-7 text-2xl text-red-500 bg-black rounded-full p-1' onClick={()=>setIsEditing(false)}/>}
             </div>
           </div>
 
           {/* Short & Detailed Description could go here if available */}
-          {todoInfo.shortDescription && (
-            <p className='text-md'>{todoInfo.shortDescription}</p>
-          )}
+          {!isEditing ? (
+            <>
+              {todoInfo.shortDescription && (
+                <p className='text-md'>{todoInfo.shortDescription}</p>
+              )}
 
-          {todoInfo.detailedDescription && (
-            <p className='text-md'>{todoInfo.detailedDescription}</p>
+              {todoInfo.detailedDescription && (
+                <p className='text-md'>{todoInfo.detailedDescription}</p>
+              )}
+            </>
+          ) : (
+            <div className='flex flex-col gap-y-2'>
+              <input 
+                type="text" 
+                placeholder="Enter short description" 
+                value={editedInfo?.shortDescription ? editedInfo.shortDescription : ""} 
+                onChange={(e)=>setEditedInfo({...editedInfo, shortDescription: e.target.value})}
+                className="text-md bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none"
+              />
+              <textarea 
+                placeholder="Enter detailed description" 
+                value={editedInfo?.detailedDescription ? editedInfo.detailedDescription : ""} 
+                onChange={(e)=>setEditedInfo({...editedInfo, detailedDescription: e.target.value})}
+                className="text-md bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none resize-none"
+                rows="3"
+              />
+            </div>
           )}
 
           <div className="flex flex-col w-full gap-y-2">

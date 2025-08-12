@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const addSubTodo = async (req, res) => {
 
     const isAdmin = req.isAdmin;
-    const {projectId, todoId, subTodoTitle, description, deadline, status, backgroundColor, foregroundColor} = req.body;
+    const {projectId, todoId, subTodoTitle, description, status} = req.body;
 
     if (!projectId){
         throw new ApiError(400, "Project Id required!");
@@ -21,10 +21,7 @@ const addSubTodo = async (req, res) => {
             projectId,
             todoId,
             description,
-            deadline,
             status,
-            backgroundColor,
-            foregroundColor,
         }
     )
 
@@ -71,7 +68,7 @@ const removeSubTodo = async (req, res) => {
 const updateSubTodo = async (req, res) => {
 
     const isAdmin = req.isAdmin;
-    const {projectId, subTodoId, subTodoTitle, description, deadline, status, backgroundColor, foregroundColor} = req.body;
+    const {projectId, subTodoId, subTodoTitle, description, status} = req.body;
 
     if (!projectId){
         throw new ApiError(400, "Project Id required!");
@@ -86,10 +83,7 @@ const updateSubTodo = async (req, res) => {
         {
             title: subTodoTitle,
             description,
-            deadline,
             status,
-            backgroundColor,
-            foregroundColor,
         },
         {
             new: true,
