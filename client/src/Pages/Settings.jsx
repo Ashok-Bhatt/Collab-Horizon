@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react'
-import {SettingOption, ToggleButton} from '../Components/export.js'
+import {SettingOption, ToggleButton, Input} from '../Components/export.js'
 import { FaExchangeAlt } from "react-icons/fa";
 import { useState, useContext } from 'react'
 import {useForm} from "react-hook-form"
 import { ThemeContext } from '../Contexts/export.js';
+import conf from "../config/config.js";
+import axios from 'axios';
+import {showErrorToast, showAcceptToast} from "../Utils/toastUtils.js"
 
 function Settings() {
 
@@ -12,8 +15,9 @@ function Settings() {
 
   const {
     register,
-    error,
-    handleSubmit
+    handleSubmit,
+    formState,
+    errors,
   } = useForm();
 
   useEffect(()=>{
@@ -22,6 +26,31 @@ function Settings() {
 
   const showOptionBlock = () => {
     setOptionBlockVisibility(true);
+  }
+
+  const changePassword = (data) => {
+    const oldPassword = data.oldPassword;
+    const newPassword = data.newPassword;
+
+    const formData = new FormData();
+    formData.append('oldPassword', data.oldPassword);
+    formData.append('newPassword', data.newPassword);
+
+    axios
+    .post(
+      `${conf.serverUrl}/api/v1/user/changePassword`,
+      formData,
+      {
+        headers : { 'Content-Type' : 'multipart/form-data'},
+        withCredentials: true,
+      }
+    )
+    .then((res)=>{
+      showAcceptToast("Password changed successfully!");
+    })
+    .catch((error)=>{
+      showErrorToast("Failed to change password!");
+    })
   }
 
   return (
@@ -35,12 +64,12 @@ function Settings() {
         settingOptionBlock={<FaExchangeAlt onClick={showOptionBlock} className='border rounded p-1 h-5 w-5'/>}
       />
 
-      <form className='flex flex-col absolute top-1/2 left-1/2 -translate-1/2 bg-blue-100 p-2 gap-y-2 rounded-lg' style={{visibility : (OptionBlockVisibility ? 'visible' : 'hidden')}}>
-        <input type="text" className="" placeholder='Enter Old Password'/>
-        <input type="text" className="" placeholder='Enter New Password'/>
+      <form className='flex flex-col absolute top-1/2 left-1/2 -translate-1/2 bg-blue-100 p-2 gap-y-2 rounded-lg' style={{visibility : (OptionBlockVisibility ? 'visible' : 'hidden')}} onSubmit={handleSubmit(changePassword)}>
+        <Input placeholder="Enter Old Password" inputType="text" {...register("oldPassword")} errorObj={errors?.oldPassword}/>
+        <Input placeholder="Enter New Password" inputType="text" {...register("newPassword")} errorObj={errors?.newPassword}/>
         <div className="flex justify-between w-125">
           <button className="py-1 rounded text-center bg-green-400 w-50" type='submit'>Change Password</button>
-          <button className="py-1 rounded text-center bg-red-400 w-50" onClick={()=>setOptionBlockVisibility(false)}>Cancel</button>
+          <button className="py-1 rounded text-center bg-red-400 w-50" type='button' onClick={()=>setOptionBlockVisibility(false)}>Cancel</button>
         </div>
       </form>
     </div>
