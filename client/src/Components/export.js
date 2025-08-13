@@ -15,6 +15,7 @@ import SubTodoBlock from "./SubTodoBlock.jsx";
 import ListItem from "./ListItem.jsx";
 import EditProfile from "./EditProfile.jsx";
 import ProjectJoiningRequests from "./ProjectJoiningRequests.jsx";
+import Notifications from "./Notifications.jsx";
 
 export {
     AuthLayout,
@@ -33,5 +34,6 @@ export {
     ListItem,
     EditProfile,
     OptionBlock,
-    ProjectJoiningRequests
+    ProjectJoiningRequests,
+    Notifications,
 }

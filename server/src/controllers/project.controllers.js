@@ -5,6 +5,9 @@ import {getProjectWithFields} from "../utils/aggregationPipeline.js"
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import axios from "axios";
+import { SERVER_URL } from "../config/config.js";
+import { User } from "../models/user.model.js";
 
 const createProject = async (req, res) => {
 
@@ -267,14 +270,7 @@ const handleProjectJoiningRequest = async(req, res) => {
     const projectId = req.query?.projectId;
     const requestId = req.query?.requestId;
     const isRequestAccepted = req.query?.isRequestAccepted;
-
-    console.log("handleProjectJoiningRequest called with:", {
-        isAdmin,
-        projectId,
-        requestId,
-        isRequestAccepted,
-        query: req.query
-    });
+    const user = req.user;
 
     if (!isAdmin){
         throw new ApiError(403, "You are not authorized to respond to project joining requests");
@@ -283,7 +279,7 @@ const handleProjectJoiningRequest = async(req, res) => {
     if (!requestId) {
         throw new ApiError(400, "Request ID is required");
     }
-    
+
     const projectJoiningRequest = await ProjectRequest.findById(requestId);
 
     if (!projectJoiningRequest){
@@ -294,13 +290,14 @@ const handleProjectJoiningRequest = async(req, res) => {
         throw new ApiError(400, "Invalid projectId for given project request");
     }
 
-    if (isRequestAccepted === "true"){
-        const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId);
+    const requestSender = await User.findById(projectJoiningRequest.requestSender);
         
-        if (!project){
-            throw new ApiError(404, "Couldn't find project for given project id!")
-        }
+    if (!project){
+        throw new ApiError(404, "Couldn't find project for given project id!")
+    }
 
+    if (isRequestAccepted === "true"){
         project.projectGroup.push(
             {
                 groupMember: projectJoiningRequest.requestSender,
@@ -310,6 +307,21 @@ const handleProjectJoiningRequest = async(req, res) => {
 
         project.save({validateBeforeSave : false});
     }
+
+    axios
+    .post(
+        `${SERVER_URL}/api/v1/notification/sendNotification`,
+        {
+            notificationReceiver: projectJoiningRequest.requestSender,
+            notificationMessage: `${user.username} ${isRequestAccepted ? 'accepted' : 'rejected'} your request for project - ${project.projectName}`,
+        }
+    )
+    .then(()=>{
+
+    })
+    .catch(()=>{
+
+    })
 
     const deleteResponse = await projectJoiningRequest.deleteOne();
 

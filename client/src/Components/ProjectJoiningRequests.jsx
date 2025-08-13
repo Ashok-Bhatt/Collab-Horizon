@@ -100,7 +100,10 @@ function ProjectJoiningRequests(props) {
                                     projectInfo.projectRequests?.map((request, requestIndex)=>(
                                         <div className="flex items-center w-full bg-green-200 p-2 gap-2" onClick={()=>toggleCheckbox(requestIndex)} key={request._id}>
                                             <input type="checkbox" checked={selected[requestIndex]} onChange={()=>toggleCheckbox(requestIndex)}/>
-                                            <div className="text-lg">{request._id}</div>
+                                            <div className="text-lg bg-yellow-500">
+                                                <div>{request._id}</div>
+                                                <div>{request.requestText}</div>
+                                            </div>
                                         </div>
                                     ))
                                 }
