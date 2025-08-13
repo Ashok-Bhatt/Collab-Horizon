@@ -205,6 +205,21 @@ const sendProjectJoiningRequest = async(req, res) => {
         throw new ApiError(404, "Invalid Project code!");
     }
 
+    for (let i=0; i<project["projectGroup"].length; i++){
+        if (project["projectGroup"][i].groupMember.toString() === loggedInUser._id.toString()){
+            throw new ApiError(403, "Users already in the project group cannot send project joining requests.");
+        }
+    }
+
+    const searchedProjectRequest = await ProjectRequest.findOne({
+        requestSender : loggedInUser._id,
+        requestReceiver: project._id,
+    })
+
+    if (searchedProjectRequest){
+        throw new ApiError(403, "User cannot make another project joining request to the project until previous request is not resolved")
+    }
+
     const projectRequest = await ProjectRequest.create(
         {
             requestSender: loggedInUser._id,
@@ -251,12 +266,24 @@ const handleProjectJoiningRequest = async(req, res) => {
     const isAdmin = req.isAdmin;
     const projectId = req.query?.projectId;
     const requestId = req.query?.requestId;
-    const isRequestAccepted = req.query?.requestAction;
+    const isRequestAccepted = req.query?.isRequestAccepted;
+
+    console.log("handleProjectJoiningRequest called with:", {
+        isAdmin,
+        projectId,
+        requestId,
+        isRequestAccepted,
+        query: req.query
+    });
 
     if (!isAdmin){
         throw new ApiError(403, "You are not authorized to respond to project joining requests");
     }
 
+    if (!requestId) {
+        throw new ApiError(400, "Request ID is required");
+    }
+    
     const projectJoiningRequest = await ProjectRequest.findById(requestId);
 
     if (!projectJoiningRequest){

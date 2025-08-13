@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState, useContext } from 'react'
 import axios from "axios"
-import {useNavigate, useParams} from "react-router-dom"
-import { FaCoins, FaCopy, FaPlus } from "react-icons/fa";
+import {useParams} from "react-router-dom"
+import { FaCopy, FaPlus } from "react-icons/fa";
 import { showErrorToast,  showAcceptToast } from '../Utils/toastUtils.js';
 import {useForm} from "react-hook-form";
-import {Input, Select, DateInput, TodoBlock, ToggleButton, OptionBlock} from "../Components/export.js"
+import {Input, Select, DateInput, TodoBlock, ToggleButton, OptionBlock, ProjectJoiningRequests} from "../Components/export.js"
 import conf from "../config/config.js";
 
 function Project() {
@@ -12,11 +12,13 @@ function Project() {
   const {id} = useParams();
   const projectCodeRef = useRef(null);
   const srcCodeLinkRef = useRef(null);
+  const messageRef = useRef(null);
   const [showTodoCreationBlock, setShowTodoCreationBlock] = useState(false);
   const [projectInfo, setProjectInfo] = useState(null);
   const [projectVisibility, setProjectVisibility] = useState(false);
   const [showProjectDeleteOption, setShowProjectDeleteOption] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showRequestSendingBlock, setShowRequestSendingBlock] = useState(false);
 
   const {
     register : todoRegister,
@@ -141,6 +143,35 @@ function Project() {
     })
   }
 
+  const sendProjectJoiningRequest = (requestMessage) => {
+    
+    axios
+    .post(
+      `${conf.serverUrl}/api/v1/project/sendProjectJoiningRequest`,
+      {
+        projectCode : projectInfo.uniqueCode,
+        requestText : requestMessage,
+      },
+      {
+        headers : { 
+          'Content-Type' : 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+        },
+        withCredentials: true,
+      }
+    )
+    .then((res)=>{
+      showAcceptToast("Project Joining Request Send");
+    })
+    .catch((error)=>{
+      console.log(error);
+      showErrorToast("Couldn't Send Project Joining Request");
+    })
+    .finally(()=>{
+      setShowRequestSendingBlock(false);
+    })
+  }
+
   useEffect(()=>{
     
     axios
@@ -182,6 +213,7 @@ function Project() {
                     <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility}/>
                   </div>
                 </div>
+                <ProjectJoiningRequests projectInfo={projectInfo}/>
                 {projectInfo["projectImage"] && <img className='rounded-lg w-full' src={projectInfo["projectImage"]}/>}
                 <p className='text-sm'>{projectInfo["projectDescription"]}</p>
                 <div className="flex w-full border rounded-lg overflow-hidden">
@@ -202,6 +234,7 @@ function Project() {
                   <button type='button' className='bg-red-500' onClick={()=>setShowProjectDeleteOption(true)}>Delete Project</button>
                   <button type='button' className='bg-green-500' onClick={()=>setIsEditing(true)}>Update Project</button>
                 </div>
+                <button className='bg-orange-500' onClick={()=>setShowRequestSendingBlock(true)}>Join Project</button>
               </>
             ) : (
               // Edit mode
@@ -274,6 +307,14 @@ function Project() {
               </form>
             </div>
             {showProjectDeleteOption && <OptionBlock mainText="Do you want to delete this project?" acceptText="Delete" cancelText="Cancel" acceptCallback={deleteProject} cancelCallback={()=>setShowProjectDeleteOption(false)}/>}
+            
+            {
+              showRequestSendingBlock && <div className='flex flex-col absolute top-1/2 left-1/2 -translate-1/2 bg-blue-300 '>
+                <textarea rows="5" cols="100" ref={messageRef} placeholder='Enter message you want to send along project joining request'></textarea>
+                <button className='bg-green-500' onClick={()=>sendProjectJoiningRequest(messageRef.current.value)}>Send</button>
+                <button className='bg-red-500' onClick={()=>setShowRequestSendingBlock(false)}>Cancel</button>
+              </div>
+            }
           </>
         }
       </div>

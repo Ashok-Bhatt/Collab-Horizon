@@ -51,6 +51,9 @@ function Settings() {
     .catch((error)=>{
       showErrorToast("Failed to change password!");
     })
+    .finally(()=>{
+      setOptionBlockVisibility(false);
+    })
   }
 
   return (

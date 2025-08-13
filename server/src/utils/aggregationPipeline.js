@@ -67,34 +67,42 @@ const getUserSummary = async (userId, projectFields={}) => {
 }
 
 const getProjectWithFields = async (projectId, authorization=false) => {
-    return await Project.aggregate([
-        {
-            $match : {
-                _id : new mongoose.Types.ObjectId(projectId),
-            }
-        },
-        {
-            $lookup : {
-                from : "maintodos",
-                localField: "_id",
-                foreignField: "projectId",
-                as: "tasks",
-            }
-        },
-        authorization && {
+
+    const pipeline = [];
+
+    pipeline.push({
+        $match : {
+            _id : new mongoose.Types.ObjectId(projectId),
+        }
+    });
+
+    pipeline.push({
+        $lookup : {
+            from : "maintodos",
+            localField: "_id",
+            foreignField: "projectId",
+            as: "tasks",
+        }
+    });
+
+    if (authorization) {
+        pipeline.push({
             $lookup : {
                 from : "projectrequests",
                 localField: "_id",
                 foreignField: "requestReceiver",
                 as: "projectRequests",
             }
-        },
-        {
-            $project: {
-                __v : 0,
-            }
-        },
-    ])
+        })
+    }
+
+    pipeline.push({
+        $project: {
+            __v : 0,
+        }
+    });
+
+    return await Project.aggregate(pipeline);
 }
 
 const getTodosWithFields = async (todoId) => {
