@@ -3,7 +3,7 @@ import axios from "axios"
 import {useSearchParams} from "react-router-dom"
 import { FaPlus } from "react-icons/fa";
 import { MdEdit, MdSave, MdCancel } from 'react-icons/md';
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import {useForm} from "react-hook-form";
 import {Input, Select, DateInput, TodoBlock, ToggleButton, SubTodoBlock } from "../Components/export.js"
 import conf from "../config/config.js";
@@ -50,6 +50,7 @@ function Todo() {
     .then((res)=>{
       console.log(res.data);
       setTodoInfo(editedInfo);
+      showAcceptToast("Todo updated successfully");
     })
     .catch((err)=>{
       console.log(err);
@@ -80,10 +81,11 @@ function Todo() {
     )
     .then((res)=>{
       console.log(res.data);
+      showAcceptToast("SubTodo created successfully");
     })
     .catch((error)=>{
         console.log(error);
-        showErrorToast("Couldn't create new project");
+        showErrorToast("Couldn't create new SubTodo");
     })
   }
 

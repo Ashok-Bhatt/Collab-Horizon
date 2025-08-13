@@ -3,7 +3,7 @@ import {useForm} from "react-hook-form";
 import axios from "axios";
 import { UserContext } from '../Contexts/export.js';
 import { useContext } from 'react';
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Login() {
@@ -33,6 +33,7 @@ function Login() {
       const loggedInUser = res["data"]["user"][0];
       changeUser(loggedInUser);
       localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+      showAcceptToast("Login successful!");
       navigate("/");
     })
     .catch((error)=>{

@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { UserContext } from '../Contexts/export.js'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Navbar() {
@@ -25,6 +25,7 @@ function Navbar() {
             changeUser(null);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("loggedInUser");
+            showAcceptToast("Logged out successfully");
             navigate("/login");
         })
         .catch((error)=>{

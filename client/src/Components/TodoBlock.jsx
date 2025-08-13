@@ -4,6 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { OptionBlock } from './export.js';
 import axios from 'axios';
 import conf from '../config/config.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 
 function TodoBlock(props) {
   const { height = "h-[200px]", width = "w-[350px]", textSize = "text-md", todoInfo, showDeleteButton = false } = props;
@@ -34,9 +35,11 @@ function TodoBlock(props) {
     })
     .then((res)=>{
       console.log(res.data);
+      showAcceptToast("Todo deleted successfully");
     })
     .catch((err)=>{
       console.log(err);
+      showErrorToast("Failed to delete todo");
     })
     .finally(()=>{
       setShowTodoDeleteOption(false);

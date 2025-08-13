@@ -3,6 +3,7 @@ import { OptionBlock } from './export.js';
 import axios from 'axios';
 import conf from '../config/config.js';
 import { MdDelete, MdEdit, MdSave, MdCancel } from 'react-icons/md';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 
 function SubTodoBlock(props) {
   const { subTodoInfo } = props;
@@ -24,9 +25,11 @@ function SubTodoBlock(props) {
     })
     .then((res)=>{
       console.log(res.data);
+      showAcceptToast("SubTodo deleted successfully");
     })
     .catch((err)=>{
       console.log(err);
+      showErrorToast("Failed to delete SubTodo");
     })
     .finally(()=>{
       setShowSubTodoDeleteOption(false);
@@ -51,9 +54,11 @@ function SubTodoBlock(props) {
     )
     .then((res)=>{
       console.log(res.data);
+      showAcceptToast("SubTodo updated successfully");
     })
     .catch((err)=>{
       console.log(err);
+      showErrorToast("Failed to update SubTodo");
     })
     .finally(()=>{
       setIsEditing(false);

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import {SocialProfileBlock, ProjectBlock, MessageBox, EditProfile } from "../Components/export.js"
 import { FaCamera, FaPencilAlt } from "react-icons/fa";
 import { UserContext } from '../Contexts/export.js';
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Profile() {
@@ -59,6 +59,7 @@ function Profile() {
         setUserData((prev)=>(
           {...prev, ["coverImage"] : res.data.data["image"]}
         ))
+        showAcceptToast("Cover image updated successfully");
       })
       .catch((error)=>{
           showErrorToast("Couldn't upload cover image");
@@ -87,6 +88,7 @@ function Profile() {
         setUserData((prev)=>(
           {...prev, ["avatar"] : res.data.data["image"]}
         ))
+        showAcceptToast("Profile picture updated successfully");
       })
       .catch((error)=>{
         showErrorToast("Couldn't upload profile pic");

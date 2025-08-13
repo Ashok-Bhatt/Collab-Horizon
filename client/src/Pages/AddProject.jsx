@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from '../Contexts/export.js';
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function AddProject(props) {
@@ -44,6 +44,7 @@ function AddProject(props) {
             newUserData["projects"].push(res.data.data);
             changeUser(newUserData);
             localStorage.setItem("loggedInUser", JSON.stringify(newUserData));
+            showAcceptToast("Project created successfully!");
             navigate("/dashboard"); 
         })
         .catch((error)=>{

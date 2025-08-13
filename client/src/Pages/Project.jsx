@@ -78,9 +78,11 @@ function Project() {
     )
     .then((res)=>{
       console.log("project deleted!");
+      showAcceptToast("Project deleted successfully");
     })
     .catch((error)=>{
       console.log("project not deleted!");
+      showErrorToast("Failed to delete project");
     })
   }
 
@@ -104,10 +106,11 @@ function Project() {
     )
     .then((res)=>{
       console.log(res.data);
+      showAcceptToast("Todo created successfully");
     })
     .catch((error)=>{
         console.log(error);
-        showErrorToast("Couldn't create new project");
+        showErrorToast("Couldn't create new todo");
     })
     .finally(()=>{
       setShowTodoCreationBlock(false);

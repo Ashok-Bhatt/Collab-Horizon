@@ -2,7 +2,7 @@ import React from 'react'
 import {useForm} from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
-import { showErrorToast } from '../Utils/toastUtils.js';
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
 import conf from "../config/config.js";
 
 function Signup() {
@@ -27,6 +27,7 @@ function Signup() {
       headers : { 'Content-Type' : 'multipart/form-data'}
     })
     .then((res)=>{
+      showAcceptToast("Account created successfully!");
       navigate("/");
     })
     .catch((error)=>{
