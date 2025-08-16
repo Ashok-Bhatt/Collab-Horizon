@@ -1,27 +1,26 @@
 import { Project } from "../models/project.model.js";
-import { ApiError } from "../utils/ApiError.js";
-
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const checkProjectVisibility = async (req, res, next) => {
-
-    try{
+    try {
         const projectId = req.query?.projectId || req.body?.projectId;
         const project = await Project.findById(projectId);
-        
-        if (!project){
-            throw new ApiError(statusCode=404, message="Invalid Project Id");
+
+        if (!project) {
+            return res
+                .status(404)
+                .json(new ApiResponse(404, null, "Invalid Project Id"));
         }
 
-        const visibility = project.visibilityStatus;
-
-        req.isProjectVisible = visibility;
+        req.isProjectVisible = project.visibilityStatus;
         next();
-
-    } catch (error){
-        throw new ApiError(statusCode=404, message="Invalid Project Id");
+    } catch (error) {
+        return res
+            .status(500)
+            .json(new ApiResponse(500, null, "Something went wrong while checking project visibility"));
     }
-}
+};
 
 export {
     checkProjectVisibility,
-}
+};

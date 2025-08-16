@@ -1,31 +1,35 @@
 import jwt from "jsonwebtoken";
 import {User} from "../models/user.model.js";
-import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
-import {ACCESS_TOKEN_SECRET} from "../config/config.js"
+import {ACCESS_TOKEN_SECRET} from "../config/config.js";
 
 const verifyJWT = async (req, res, next) => {
-
-    try{
+    try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
 
-        if (!token){
-            throw new ApiError(401, "Access token not provided User");
+        if (!token) {
+            return res
+                .status(401)
+                .json(new ApiResponse(401, null, "Access token not provided"));
         }
 
         const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET);
 
         const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
 
-        if (!user){
-            throw new ApiError(401, "Invalid Access Token");
+        if (!user) {
+            return res
+                .status(401)
+                .json(new ApiResponse(401, null, "Invalid Access Token"));
         }
 
         req.user = user;
         next();
-    } catch (error){
-        throw new ApiError(401, "Valid Access Token Required!");
+    } catch (error) {
+        return res
+            .status(401)
+            .json(new ApiResponse(401, null, "Valid Access Token Required!"));
     }
-}
+};
 
-export {verifyJWT};
+export { verifyJWT };

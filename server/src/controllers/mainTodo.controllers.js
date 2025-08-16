@@ -1,205 +1,211 @@
 import { MainTodo } from "../models/mainTodo.model.js";
-import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { getTodosWithFields } from "../utils/aggregationPipeline.js";
 
 const getTodoInfo = async (req, res) => {
-
     const todoId = req.query?.todoId;
     const projectVisibility = req.isProjectVisible;
     const isMember = req.isMember;
 
-    if (!projectVisibility && !isMember){
-        throw new ApiError(403, "You are not authorized to see the todo information.");
+    if (!projectVisibility && !isMember) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "You are not authorized to see the todo information."));
     }
 
     const todo = await getTodosWithFields(todoId);
 
-    if (!todo){
-        throw new ApiError(404, "Invalid Todo Id");
+    if (!todo) {
+        return res
+            .status(404)
+            .json(new ApiResponse(404, null, "Invalid Todo Id"));
     }
 
     return res
-    .status(200)
-    .json(new ApiResponse(200, todo, "Todo info fetched successfully"));
-}
+        .status(200)
+        .json(new ApiResponse(200, todo, "Todo info fetched successfully"));
+};
 
 
 const addTodo = async (req, res) => {
-
     const isAdmin = req.isAdmin;
-    const {projectId, todoTitle, shortDescription, detailedDescription, deadline, priority, status} = req.body;
+    const { projectId, todoTitle, shortDescription, detailedDescription, deadline, priority, status } = req.body;
 
-    if (!projectId){
-        throw new ApiError(400, "Project Id required!");
+    if (!projectId) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "Project Id required!"));
     }
 
-    if (!isAdmin){
-        throw new ApiError(403, "Not authorized to create todos!");
+    if (!isAdmin) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "Not authorized to create todos!"));
     }
 
-    const todo = await MainTodo.create(
-        {
-            title: todoTitle,
-            projectId,
-            shortDescription,
-            detailedDescription,
-            deadline,
-            priority,
-            status,
-        }
-    )
+    const todo = await MainTodo.create({
+        title: todoTitle,
+        projectId,
+        shortDescription,
+        detailedDescription,
+        deadline,
+        priority,
+        status,
+    });
 
-    if (!todo){
-        throw new ApiError(500, "Couldn't create todo!");
+    if (!todo) {
+        return res
+            .status(500)
+            .json(new ApiResponse(500, null, "Couldn't create todo!"));
     }
 
     return res.status(201).json(
-        new ApiResponse(200, todo, "Todo created successfully!")
+        new ApiResponse(201, todo, "Todo created successfully!")
     );
-
-}
+};
 
 
 const removeTodo = async (req, res) => {
-
     const projectId = req.query?.projectId;
     const todoId = req.query?.todoId;
     const isAdmin = req.isAdmin;
 
-    if (!isAdmin){
-        throw new ApiError(403, "You are not authorized to remove todos in this project");
+    if (!isAdmin) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "You are not authorized to remove todos in this project"));
     }
 
     const todo = await MainTodo.findById(todoId);
 
-    if (!todo){
-        throw new ApiError(404, "Invalid todo Id");
+    if (!todo) {
+        return res
+            .status(404)
+            .json(new ApiResponse(404, null, "Invalid todo Id"));
     }
 
-    if (!todo.projectId.equals(projectId)){
-        throw new ApiError(400, "The projectId of todo is not same as the id provided");
+    if (!todo.projectId.equals(projectId)) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "The projectId of todo is not same as the id provided"));
     }
 
     const deletedTodo = await todo.deleteOne();
 
-    if (!deletedTodo){
-        throw new ApiError(404, "Invalid Todo Id");
-    }
-
-    return res.status(201).json(
+    return res.status(200).json(
         new ApiResponse(200, deletedTodo, "Todo deleted successfully!")
     );
-
-}
+};
 
 
 const updateTodo = async (req, res) => {
-
     const isAdmin = req.isAdmin;
-    const {projectId, todoId, todoTitle, shortDescription, detailedDescription, deadline, priority, status} = req.body;
+    const { projectId, todoId, todoTitle, shortDescription, detailedDescription, deadline, priority, status } = req.body;
 
-    if (!projectId){
-        throw new ApiError(400, "Project Id required!");
+    if (!projectId) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "Project Id required!"));
     }
 
-    if (!isAdmin){
-        throw new ApiError(403, "You are not authorized to add a todo to this project");
+    if (!isAdmin) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "You are not authorized to update this todo"));
     }
 
     const updatedTodo = await MainTodo.findByIdAndUpdate(
         todoId,
-        {
-            title: todoTitle,
-            shortDescription,
-            detailedDescription,
-            deadline,
-            priority,
-            status,
-        },
-        {
-            new: true,
-        }
-    )
+        { title: todoTitle, shortDescription, detailedDescription, deadline, priority, status },
+        { new: true }
+    );
 
-    if (!updatedTodo){
-        throw new ApiError(500, "Couldn't update todo");
+    if (!updatedTodo) {
+        return res
+            .status(500)
+            .json(new ApiResponse(500, null, "Couldn't update todo"));
     }
 
-    return res.status(201).json(
-        new ApiResponse(200, updatedTodo, "Todo updated successfully!")
+    return res.status(200).json(
+        new ApiResponse(200, updatedTodo, "Todo updated successfully")
     );
-}
+};
 
 
 const getTodos = async (req, res) => {
-
     const isMember = req.isMember;
     const projectVisibility = req.isProjectVisible;
     const projectId = req.query?.projectId;
 
-    if (!isMember && !projectVisibility){
-        throw new ApiError(403, "You are not authorized to get todos of this project");
+    if (!isMember && !projectVisibility) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "You are not authorized to get todos of this project"));
     }
 
-    const todos = await MainTodo.find(
-        {
-            projectId,
-        }
-    )
+    const todos = await MainTodo.find({ projectId });
 
-    if (!todos){
-        throw new ApiError(500, "Couldn't access todos");
+    if (!todos) {
+        return res
+            .status(500)
+            .json(new ApiResponse(500, null, "Couldn't access todos"));
     }
 
-    return res.status(201).json(
-        new ApiResponse(200, todos, "Todos fetched successfully!")
+    return res.status(200).json(
+        new ApiResponse(200, todos, "Todos fetched successfully")
     );
-
-}
-
-
-const changeProgressStatus = (req, res) => {
-
-    
-
-}
+};
 
 
 const changeTodoPriority = async (req, res) => {
-
     const projectId = req.query?.projectId;
     const todoId = req.query?.todoId;
     const isAdmin = req.isAdmin;
     const todoPriority = req.query?.todoPriority;
 
-    if (!isAdmin){
-        throw new ApiError(403, "You are not authorized to remove todos in this project");
+    if (!isAdmin) {
+        return res
+            .status(403)
+            .json(new ApiResponse(403, null, "You are not authorized to change todo priority in this project"));
     }
 
     const todo = await MainTodo.findById(todoId);
 
-    if (!todo){
-        throw new ApiError(404, "Invalid Todo Id");
+    if (!todo) {
+        return res
+            .status(404)
+            .json(new ApiResponse(404, null, "Invalid Todo Id"));
     }
 
-    if (!todo.projectId.equals(projectId)){
-        throw new ApiError(400, "The projectId of todo is not same as the id provided");
+    if (!todo.projectId.equals(projectId)) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "The projectId of todo is not same as the id provided"));
     }
 
-    if (todoPriority === null){
-        throw new ApiError(400, "priority of todo is required");
-    } else if (todoPriority!=="High" && todoPriority!=="Medium" && todoPriority!=="Low"){
-        throw new ApiError(400, "priority of todo can have only these values: Low, Medium , High");
+    if (!todoPriority) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "priority of todo is required"));
+    }
+
+    if (!["High", "Medium", "Low"].includes(todoPriority)) {
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "priority of todo can only be: Low, Medium, High"));
     }
 
     todo.priority = todoPriority;
-    todo.save({validateBeforeSave: false});
+    await todo.save({ validateBeforeSave: false });
 
-    return res.status(201).json(
+    return res.status(200).json(
         new ApiResponse(200, todo, `Priority of todo changed to ${todo.priority}`)
     );
+};
 
+
+const changeProgressStatus = async () => {
+    
 }
 
 
