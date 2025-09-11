@@ -6,19 +6,10 @@ const checkUserAuthorization = async (req, res, next) => {
         const user = req.user;
         const projectId = req.query?.projectId || req.body?.projectId;
 
-        if (!projectId || !projectId.trim()) {
-            return res
-                .status(400)
-                .json(new ApiResponse(400, {}, "Project Id is required"));
-        }
+        if (!projectId || !projectId.trim()) return res.status(400).json(new ApiResponse(400, {}, "Project Id is required"));
 
         const project = await Project.findById(projectId);
-
-        if (!project) {
-            return res
-                .status(404)
-                .json(new ApiResponse(404, {}, "Invalid Project Id"));
-        }
+        if (!project) return res.status(404).json(new ApiResponse(404, {}, "Invalid Project Id"));
 
         const projectMembers = project.projectGroup;
         const projectAdmins = projectMembers.filter(
@@ -46,9 +37,7 @@ const checkUserAuthorization = async (req, res, next) => {
         req.isMember = isMember;
         next();
     } catch (error) {
-        return res
-            .status(404)
-            .json(new ApiResponse(404, {}, "Valid Project Code Required!"));
+        return res.status(500).json(new ApiResponse(404, {}, "Something went wrong!"));
     }
 };
 
