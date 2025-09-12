@@ -8,7 +8,7 @@ function Home() {
   return (
     <div className='flex flex-col h-full w-full'>
       <Navbar/>
-      <div className='flex h-full'>
+      <div className='flex flex-grow overflow-y-auto'>
         <Sidebar/>
         <Outlet/>
       </div>

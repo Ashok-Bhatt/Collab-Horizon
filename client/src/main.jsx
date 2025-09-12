@@ -25,7 +25,7 @@ const router = createBrowserRouter(
           children: [
             {
               path: "/",
-              element: <Explore/>
+              element: <AuthLayout authentication={true} children={<Explore/>}/>
             },
             {
               path: "/dashboard",

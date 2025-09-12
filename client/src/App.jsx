@@ -21,7 +21,7 @@ function App() {
   }, []);
 
   return (
-    <div className='h-screen w-screen'>
+    <div className='flex flex-col h-screen w-full'>
       <Outlet/>
       <ToastContainer
         position="bottom-center"
