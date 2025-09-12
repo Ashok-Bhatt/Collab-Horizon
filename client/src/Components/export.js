@@ -1,6 +1,6 @@
 import AuthLayout from "./AuthLayout";
 import SocialProfileBlock from "./SocialProfileBlock";
-import ProjectBlock from "./projectBlock";
+import ProjectBlock from "./ProjectBlock";
 import MessageBox from "./MessageBox"
 import Sidebar from "./Sidebar"
 import Navbar from "./Navbar.jsx";
