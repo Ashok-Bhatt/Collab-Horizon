@@ -1,5 +1,5 @@
 import UserContextProvider from "./UserContextProvider.jsx"
-import ThemeContextProvider from "./themeContextProvider.jsx"
+import ThemeContextProvider from "./ThemeContextProvider.jsx"
 import { UserContext } from "./UserContext.js";
 import { ThemeContext } from "./ThemeContext.js";
 
