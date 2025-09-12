@@ -27,7 +27,7 @@ router.route("/updateAvatar").patch(verifyJWT, updateAvatar);
 router.route("/updateCoverImage").patch(verifyJWT, updateCoverImage);
 router.route("/getUserInfo/:userId").get(verifyJWT, getUserInfo);
 router.route("/changePassword").post(verifyJWT, changePassword);
-router.route("/getNewTokens").post(verifyJWT, getNewTokens);
+router.route("/getNewTokens").get(getNewTokens);
 router.route("/checkAuth").get(verifyJWT, checkAuth);
 
 export default router;
