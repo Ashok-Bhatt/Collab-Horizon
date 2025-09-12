@@ -148,6 +148,11 @@ const changeTodoPriority = async (req, res) => {
 };
 
 
+const changeProgressStatus = (req, res) => {
+    
+}
+
+
 export {
     getTodoInfo,
     addTodo,

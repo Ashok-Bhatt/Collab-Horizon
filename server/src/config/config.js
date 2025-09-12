@@ -1,8 +1,4 @@
-import {config} from "dotenv"
-
-const environment = "development";
-
-config({path: `./.env.${environment}.local`});
+import 'dotenv/config';
 
 export const {
     PORT,
@@ -17,4 +13,4 @@ export const {
     REFRESH_TOKEN_SECRET,
     REFRESH_TOKEN_EXPIRY,
     SERVER_URL,
-} = process.env
+} = process.env;

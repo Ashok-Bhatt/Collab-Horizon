@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { UserContext } from "./UserContext.js"
+import axios from "axios";
 
 const UserContextProvider = ({children}) => {
 
@@ -8,9 +9,13 @@ const UserContextProvider = ({children}) => {
     const changeUser = (newUser)=>{
         setUser(newUser);
     }
+
+    const checkAuth = () => {
+        axios.post()
+    }
     
     return (
-        <UserContext.Provider value={{user, changeUser}}>
+        <UserContext.Provider value={{user, changeUser, checkAuth}}>
             {children}
         </UserContext.Provider>
     )    
