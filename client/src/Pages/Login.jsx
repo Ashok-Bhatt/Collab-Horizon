@@ -30,13 +30,14 @@ function Login() {
     })
     .then((res)=>{
       localStorage.setItem("accessToken", res.data["accessToken"]);
-      const loggedInUser = res["data"]["user"][0];
+      const loggedInUser = res["data"]["data"]["user"][0];
       changeUser(loggedInUser);
       localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
       showAcceptToast("Login successful!");
       navigate("/");
     })
     .catch((error)=>{
+      console.log(error);
       showErrorToast("Something went wrong! login unsuccessful!");
     })
 

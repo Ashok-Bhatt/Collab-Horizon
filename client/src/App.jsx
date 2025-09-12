@@ -3,17 +3,13 @@ import {Outlet} from "react-router-dom"
 import { ThemeContext, UserContext } from "./Contexts/export.js"
 import { useContext, useEffect } from 'react'
 import {ToastContainer, Zoom} from "react-toastify"
+import { useNavigate } from 'react-router-dom'
 
 function App() {
 
-  const {user, changeUser} = useContext(UserContext);
+  const {checkAuth} = useContext(UserContext);
   const {theme, toggleTheme} = useContext(ThemeContext);
-
-  useEffect(()=>{
-    if (localStorage.getItem("loggedInUser")){
-      changeUser(JSON.parse(localStorage.getItem("loggedInUser")));
-    }
-  }, []);
+  const navigate = useNavigate();
 
   useEffect(()=>{
     if (localStorage.getItem("theme")){

@@ -6,7 +6,16 @@ function AuthLayout(props) {
 
   const {authentication, children} = props;
   const navigate = useNavigate();
-  const {user, changeUser} = useContext(UserContext);
+  const {user, changeUser, checkAuth} = useContext(UserContext);
+
+  const logoutUser = () => {
+    changeUser(null);
+    localStorage.setItem("accessToken", "");
+  }
+
+  useEffect(()=>{
+    checkAuth(logoutUser);
+  }, []);
 
   useEffect(()=>{
     if (user && !authentication){
