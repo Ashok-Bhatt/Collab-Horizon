@@ -3,8 +3,8 @@ import {Notifications} from "../Components/export.js"
 
 function Explore() {
   return (
-    <div className='w-full'>
-      <div className="flex w-full bg-red-400 justify-end">
+    <div className='h-full w-full'>
+      <div className="flex w-full justify-end">
         <Notifications/>
       </div>
     </div>

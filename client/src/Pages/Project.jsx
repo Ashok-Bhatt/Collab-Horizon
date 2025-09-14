@@ -1,15 +1,14 @@
-import React, { useEffect, useRef, useState, useContext } from 'react'
-import axios from "axios"
-import {useParams} from "react-router-dom"
-import { FaCopy, FaPlus } from "react-icons/fa";
-import { showErrorToast,  showAcceptToast } from '../Utils/toastUtils.js';
-import {useForm} from "react-hook-form";
-import {Input, Select, DateInput, TodoBlock, ToggleButton, OptionBlock, ProjectJoiningRequests} from "../Components/export.js"
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { FaCopy, FaPlus, FaEdit, FaTrashAlt, FaTimes } from "react-icons/fa";
+import { showErrorToast, showAcceptToast } from '../Utils/toastUtils.js';
+import { useForm } from "react-hook-form";
+import { Input, Select, DateInput, TodoBlock, ToggleButton, OptionBlock, ProjectJoiningRequests } from "../Components/export.js";
 import conf from "../config/config.js";
 
 function Project() {
-
-  const {id} = useParams();
+  const { id } = useParams();
   const projectCodeRef = useRef(null);
   const srcCodeLinkRef = useRef(null);
   const messageRef = useRef(null);
@@ -21,73 +20,66 @@ function Project() {
   const [showRequestSendingBlock, setShowRequestSendingBlock] = useState(false);
 
   const {
-    register : todoRegister,
-    formState: {errors : todoErrors},
-    handleSubmit : todoHandleSubmit
+    register: todoRegister,
+    formState: { errors: todoErrors },
+    handleSubmit: todoHandleSubmit,
+    reset: todoReset,
   } = useForm();
 
   const {
-    register : projectRegister,
-    formState: {errors : projectErrors},
+    register: projectRegister,
+    formState: { errors: projectErrors },
     handleSubmit: projectHandleSubmit,
-    reset: projectReset
+    reset: projectReset,
   } = useForm();
 
   const copyProjectCode = async () => {
     await navigator.clipboard.writeText(projectCodeRef.current.value);
-    projectCodeRef.current.select();
-    setTimeout(()=>{
-      window.getSelection().removeAllRanges();
-    }, 2000);
-  }
+    showAcceptToast("Project code copied!");
+  };
 
   const copySrcCodeLink = async () => {
     await navigator.clipboard.writeText(srcCodeLinkRef.current.value);
-    srcCodeLinkRef.current.select();
-    setTimeout(()=>{
-      window.getSelection().removeAllRanges();
-    }, 2000);
-  }
+    showAcceptToast("Source code link copied!");
+  };
 
   const toggleVisibility = async () => {
     axios
-    .patch(
-      `${conf.serverUrl}/api/v1/project/toggleVisibilityStatus?projectId=${id}`,
-      {},
-      {
-        headers: {'Authorization' : `Bearer ${localStorage.getItem("accessToken")}`},
-        withCredentials: true,
-      }
-    )
-    .then((res)=>{
-      setProjectVisibility((prev)=>!prev)
-    })
-    .catch((error)=>{
-      showErrorToast(projectVisibility ? "Couldn't make project private" : "Couldn't make project public")
-    })
-  }
+      .patch(
+        `${conf.serverUrl}/api/v1/project/toggleVisibilityStatus?projectId=${id}`,
+        {},
+        {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        setProjectVisibility((prev) => !prev);
+      })
+      .catch((error) => {
+        showErrorToast(projectVisibility ? "Couldn't make project private" : "Couldn't make project public");
+      });
+  };
 
   const deleteProject = () => {
     axios
-    .delete(
-      `${conf.serverUrl}/api/v1/project/removeProject?projectId=${id}`,
-      {
-        headers: {'Authorization' : `Bearer ${localStorage.getItem("accessToken")}`},
-        withCredentials: true,
-      }
-    )
-    .then((res)=>{
-      console.log("project deleted!");
-      showAcceptToast("Project deleted successfully");
-    })
-    .catch((error)=>{
-      console.log("project not deleted!");
-      showErrorToast("Failed to delete project");
-    })
-  }
+      .delete(
+        `${conf.serverUrl}/api/v1/project/removeProject?projectId=${id}`,
+        {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        showAcceptToast("Project deleted successfully");
+        // Redirect or handle UI after deletion
+      })
+      .catch((error) => {
+        showErrorToast("Failed to delete project");
+      });
+  };
 
   const submitAddTodo = (data) => {
-
     const formData = new FormData();
     formData.append("projectId", id);
     formData.append("todoTitle", data.todoTitle);
@@ -97,25 +89,28 @@ function Project() {
     if (data.detailedDescription) formData.append("detailedDescription", data.detailedDescription);
 
     axios.post(
-        `${conf.serverUrl}/api/v1/mainTodo/addTodo`, 
-        formData,
-        {
-            headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},
-            withCredentials: true,
-        }
+      `${conf.serverUrl}/api/v1/mainTodo/addTodo`,
+      formData,
+      {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
+        withCredentials: true,
+      }
     )
-    .then((res)=>{
-      console.log(res.data);
-      showAcceptToast("Todo created successfully");
-    })
-    .catch((error)=>{
-        console.log(error);
+      .then((res) => {
+        showAcceptToast("Todo created successfully");
+        setProjectInfo((prev) => ({
+          ...prev,
+          tasks: [...prev.tasks, res.data.data]
+        }));
+      })
+      .catch((error) => {
         showErrorToast("Couldn't create new todo");
-    })
-    .finally(()=>{
-      setShowTodoCreationBlock(false);
-    })
-  }
+      })
+      .finally(() => {
+        setShowTodoCreationBlock(false);
+        todoReset();
+      });
+  };
 
   const submitUpdateProject = (data) => {
     const formData = new FormData();
@@ -123,70 +118,66 @@ function Project() {
     if (data.projectName) formData.append("projectName", data.projectName);
     if (data.projectTagline) formData.append("projectTagline", data.projectTagline);
     if (data.projectDescription) formData.append("projectDescription", data.projectDescription);
-    if (data.projectImage) formData.append("projectImage", data.projectImage[0]);
+    if (data.projectImage && data.projectImage.length > 0) formData.append("projectImage", data.projectImage[0]);
 
     axios.patch(
-        `${conf.serverUrl}/api/v1/project/changeProjectInfo`,
-        formData,
-        {
-            headers: {'Authorization': `Bearer ${localStorage.getItem("accessToken")}`},
-            withCredentials: true,
-        }
-    )
-    .then((res)=>{ 
-      console.log(res.data);
-      showAcceptToast("Project Updated Successfully");
-    })
-    .catch((error)=>{
-        console.log(error);
-        showErrorToast("Couldn't update project");
-    })
-    .finally(()=>{
-      setIsEditing(false);
-    })
-  }
-
-  const sendProjectJoiningRequest = (requestMessage) => {
-    
-    axios
-    .post(
-      `${conf.serverUrl}/api/v1/project/sendProjectJoiningRequest`,
+      `${conf.serverUrl}/api/v1/project/changeProjectInfo`,
+      formData,
       {
-        projectCode : projectInfo.uniqueCode,
-        requestText : requestMessage,
-      },
-      {
-        headers : { 
-          'Content-Type' : 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
-        },
+        headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
         withCredentials: true,
       }
     )
-    .then((res)=>{
-      showAcceptToast("Project Joining Request Send");
-    })
-    .catch((error)=>{
-      console.log(error);
-      showErrorToast("Couldn't Send Project Joining Request");
-    })
-    .finally(()=>{
-      setShowRequestSendingBlock(false);
-    })
-  }
+      .then((res) => {
+        setProjectInfo(res.data.data);
+        showAcceptToast("Project Updated Successfully");
+      })
+      .catch((error) => {
+        showErrorToast("Couldn't update project");
+      })
+      .finally(() => {
+        setIsEditing(false);
+      });
+  };
 
-  useEffect(()=>{
-    
+  const sendProjectJoiningRequest = (requestMessage) => {
     axios
-    .get(`${conf.serverUrl}/api/v1/project/getProjectInfo?projectId=${id}`, {withCredentials: true})
-    .then((res)=>{
-      setProjectInfo(res.data.data[0]);
-      setProjectVisibility(res.data.data[0]["visibilityStatus"]);
-    })
-    .catch((error)=>{
-      showErrorToast("Couldn't fetch project info");
-    })
-  }, [])
+      .post(
+        `${conf.serverUrl}/api/v1/project/sendProjectJoiningRequest`,
+        {
+          projectCode: projectInfo.uniqueCode,
+          requestText: requestMessage,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+          },
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        showAcceptToast("Project Joining Request Sent");
+      })
+      .catch((error) => {
+        showErrorToast("Couldn't Send Project Joining Request");
+      })
+      .finally(() => {
+        setShowRequestSendingBlock(false);
+      });
+  };
+
+  useEffect(() => {
+    axios
+      .get(`${conf.serverUrl}/api/v1/project/getProjectInfo?projectId=${id}`, { withCredentials: true })
+      .then((res) => {
+        setProjectInfo(res.data.data[0]);
+        setProjectVisibility(res.data.data[0]["visibilityStatus"]);
+      })
+      .catch((error) => {
+        showErrorToast("Couldn't fetch project info");
+      });
+  }, [id]);
 
   useEffect(() => {
     if (isEditing && projectInfo) {
@@ -199,130 +190,177 @@ function Project() {
   }, [isEditing, projectInfo, projectReset]);
 
   return (
-    <>
-      <div className='flex flex-col h-full w-full p-2 gap-y-5'>
-        {
-          projectInfo && <>
+    <div className='flex flex-col h-full w-full p-6 md:p-10 gap-y-8 bg-gray-50 text-gray-800'>
+      {projectInfo && (
+        <>
+          <div className="flex flex-col gap-6 p-6 md:p-8 bg-white rounded-2xl shadow-lg">
             {!isEditing ? (
               // Display mode
               <>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-2 flex-grow">
-                    <h2 className='text-3xl font-bold'>{projectInfo["projectName"]}</h2>
-                    <h3 className='text-sm italic'>{projectInfo["projectTagline"]}</h3>
+                <div className="flex justify-between items-start gap-4 flex-wrap">
+                  <div className="flex-grow">
+                    <h2 className='text-4xl font-extrabold mb-1'>{projectInfo["projectName"]}</h2>
+                    <h3 className='text-lg italic text-gray-600'>{projectInfo["projectTagline"]}</h3>
                   </div>
-                  <div className="flex gap-x-5 items-center">
-                    <p className="text-lg text-gray-400">{projectVisibility ? "Public" : "Private"}</p>
-                    <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility}/>
-                  </div>
-                </div>
-                <ProjectJoiningRequests projectInfo={projectInfo}/>
-                {projectInfo["projectImage"] && <img className='rounded-lg w-full' src={projectInfo["projectImage"]}/>}
-                <p className='text-sm'>{projectInfo["projectDescription"]}</p>
-                <div className="flex w-full border rounded-lg overflow-hidden">
-                  <p className='px-5 py-1 h-full border-r'>Project Code</p>
-                  <input className='px-5 py-1 h-full flex-grow border-r' value={projectInfo["uniqueCode"]} readOnly={true} ref={projectCodeRef}></input>
-                  <div className='px-3 py-1'>
-                    <FaCopy className='h-full' onClick={()=>copyProjectCode()}/>
+                  <div className="flex items-center gap-4">
+                    <span className={`text-md font-semibold px-3 py-1 rounded-full ${projectVisibility ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {projectVisibility ? "Public" : "Private"}
+                    </span>
+                    <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility} />
                   </div>
                 </div>
-                {projectInfo["srcCodeLink"] && <div className="flex w-full border rounded-lg overflow-hidden">
-                  <p className='px-5 py-1 h-full border-r'>Source Code Link</p>
-                  <input className='px-5 py-1 h-full flex-grow border-r' value={projectInfo["srcCodeLink"]} readOnly={true} ref={srcCodeLinkRef}></input>
-                  <div className='px-3 py-1'>
-                    <FaCopy className='h-full' onClick={()=>copySrcCodeLink()}/>
-                  </div>
-                </div>}
-                <div className="">
-                  <button type='button' className='bg-red-500' onClick={()=>setShowProjectDeleteOption(true)}>Delete Project</button>
-                  <button type='button' className='bg-green-500' onClick={()=>setIsEditing(true)}>Update Project</button>
+
+                <ProjectJoiningRequests projectInfo={projectInfo} />
+
+                {projectInfo["projectImage"] && (
+                  <img className='rounded-xl w-full max-h-96 object-cover shadow-md' src={projectInfo["projectImage"]} alt="Project Banner" />
+                )}
+
+                <div className="prose max-w-none text-gray-700 leading-relaxed">
+                  <p>{projectInfo["projectDescription"]}</p>
                 </div>
-                <button className='bg-orange-500' onClick={()=>setShowRequestSendingBlock(true)}>Join Project</button>
+
+                <div className="flex flex-col gap-4 mt-4">
+                  <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                    <span className='px-4 py-2 font-semibold text-gray-600 whitespace-nowrap'>Project Code:</span>
+                    <input className='flex-grow px-4 py-2 bg-transparent text-gray-900 focus:outline-none' value={projectInfo["uniqueCode"]} readOnly={true} ref={projectCodeRef} />
+                    <button onClick={copyProjectCode} className='p-3 text-gray-600 hover:text-blue-500 transition-colors duration-200'>
+                      <FaCopy className='text-lg' />
+                    </button>
+                  </div>
+                  {projectInfo["srcCodeLink"] && (
+                    <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                      <span className='px-4 py-2 font-semibold text-gray-600 whitespace-nowrap'>Source Code:</span>
+                      <input className='flex-grow px-4 py-2 bg-transparent text-blue-500 underline focus:outline-none' value={projectInfo["srcCodeLink"]} readOnly={true} ref={srcCodeLinkRef} onClick={copySrcCodeLink} />
+                      <button onClick={copySrcCodeLink} className='p-3 text-gray-600 hover:text-blue-500 transition-colors duration-200'>
+                        <FaCopy className='text-lg' />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-4 mt-6">
+                  <button type='button' className='flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200' onClick={() => setIsEditing(true)}>
+                    <FaEdit /> Update Project
+                  </button>
+                  <button type='button' className='flex items-center gap-2 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-200' onClick={() => setShowProjectDeleteOption(true)}>
+                    <FaTrashAlt /> Delete Project
+                  </button>
+                  <button type='button' className='flex items-center gap-2 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200' onClick={() => setShowRequestSendingBlock(true)}>
+                    <FaPlus /> Join Project
+                  </button>
+                </div>
               </>
             ) : (
               // Edit mode
-              <form className='flex flex-col gap-2' onSubmit={projectHandleSubmit(submitUpdateProject)}>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-2 flex-grow">
-                    <Input placeholder="Enter Project Name" inputType="text" {...projectRegister("projectName")} errorObj={projectErrors.projectName} />
-                    <Input placeholder="Enter Project Tagline" inputType="text" {...projectRegister("projectTagline")} errorObj={projectErrors.projectTagline} />
+              <form className='flex flex-col gap-6' onSubmit={projectHandleSubmit(submitUpdateProject)}>
+                <div className="flex justify-between items-start gap-4 flex-wrap">
+                  <div className="flex flex-col gap-4 flex-grow">
+                    <Input placeholder="Project Name" inputType="text" {...projectRegister("projectName")} errorObj={projectErrors.projectName} />
+                    <Input placeholder="Project Tagline" inputType="text" {...projectRegister("projectTagline")} errorObj={projectErrors.projectTagline} />
                   </div>
-                  <div className="flex gap-x-5 items-center">
-                    <p className="text-lg text-gray-400">{projectVisibility ? "Public" : "Private"}</p>
-                    <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility}/>
-                  </div>
-                </div>
-                <Input placeholder="Enter Project Image" inputType="file" {...projectRegister("projectImage")} errorObj={projectErrors.projectImage}/>
-                <Input placeholder="Enter Project Description" inputType="text" {...projectRegister("projectDescription")} errorObj={projectErrors.projectDescription}/>
-                <div className="flex w-full border rounded-lg overflow-hidden">
-                  <p className='px-5 py-1 h-full border-r'>Project Code</p>
-                  <input className='px-5 py-1 h-full flex-grow border-r' value={projectInfo["uniqueCode"]} readOnly={true} ref={projectCodeRef}></input>
-                  <div className='px-3 py-1'>
-                    <FaCopy className='h-full' onClick={()=>copyProjectCode()}/>
+                  <div className="flex items-center gap-4">
+                    <span className={`text-md font-semibold px-3 py-1 rounded-full ${projectVisibility ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {projectVisibility ? "Public" : "Private"}
+                    </span>
+                    <ToggleButton toggleState={projectVisibility} toggleCallback={toggleVisibility} />
                   </div>
                 </div>
-                <div className="">
-                  <button type='submit' className="bg-green-500">Save</button>
-                  <button type='button' className="bg-red-500" onClick={()=>setIsEditing(false)}>Cancel</button>
+                <Input placeholder="Project Image" inputType="file" {...projectRegister("projectImage")} errorObj={projectErrors.projectImage} />
+                <Input placeholder="Project Description" inputType="textarea" {...projectRegister("projectDescription")} errorObj={projectErrors.projectDescription} />
+                <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                  <span className='px-4 py-2 font-semibold text-gray-600'>Project Code:</span>
+                  <input className='flex-grow px-4 py-2 bg-transparent text-gray-900 focus:outline-none' value={projectInfo["uniqueCode"]} readOnly={true} ref={projectCodeRef} />
+                  <button onClick={copyProjectCode} className='p-3 text-gray-600 hover:text-blue-500 transition-colors duration-200'>
+                    <FaCopy className='text-lg' />
+                  </button>
+                </div>
+                <div className="flex gap-4 mt-6">
+                  <button type='submit' className="flex-grow px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200">Save</button>
+                  <button type='button' className="flex-grow px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-200" onClick={() => setIsEditing(false)}>Cancel</button>
                 </div>
               </form>
             )}
+          </div>
 
-            <div className="flex flex-col w-full gap-y-2">
-              <div className='w-full flex justify-between'>
-                <h3 className='text-3xl'>Tasks</h3>
-                {projectInfo["tasks"]?.length>0 && <FaPlus className='mt-2 text-3xl' onClick={()=>setShowTodoCreationBlock(true)}/>}
+          {/* Tasks Section */}
+          <div className="flex flex-col gap-4 p-6 md:p-8 bg-white rounded-2xl shadow-lg mt-8">
+            <div className='w-full flex justify-between items-center'>
+              <h3 className='text-3xl font-extrabold text-gray-800'>Tasks</h3>
+              <button onClick={() => setShowTodoCreationBlock(true)} className='p-3 rounded-full text-white bg-blue-500 hover:bg-blue-600 transition-colors duration-200 shadow-md'>
+                <FaPlus className='text-xl' />
+              </button>
+            </div>
+            {projectInfo["tasks"]?.length > 0 ? (
+              <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
+                {projectInfo["tasks"].map((task) => (
+                  <TodoBlock todoInfo={task} key={task?._id} showDeleteButton={true} />
+                ))}
               </div>
-              {
-                projectInfo && (
-                  (projectInfo["tasks"]?.length>0) ? (
-                    <div className="flex flex-wrap gap-x-2">
-                      {
-                        projectInfo["tasks"].map((task)=>(
-                          <TodoBlock todoInfo={task} key={task?._id} showDeleteButton={true}/>
-                        ))
-                      }
-                    </div>
-                  ) : (
-                  <div className='flex flex-col bg-gray-300 h-[200px] w-full justify-center items-center rounded border'>
-                    <div className="text-3xl">No Tasks Available</div>
-                    <div className="mt-5 text-xl">Add a new task</div>
-                    <FaPlus className='mt-2 text-3xl' onClick={()=>setShowTodoCreationBlock(true)}/>
+            ) : (
+              <div className='flex flex-col bg-gray-100 h-[200px] w-full justify-center items-center rounded-xl border border-dashed border-gray-300'>
+                <div className="text-xl font-semibold text-gray-500">No Tasks Available</div>
+                <div className="mt-2 text-md text-gray-400">Add a new task to get started</div>
+                <button onClick={() => setShowTodoCreationBlock(true)} className='mt-4 p-3 rounded-full text-blue-500 bg-blue-100 hover:bg-blue-200 transition-colors duration-200'>
+                  <FaPlus className='text-2xl' />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Modals */}
+          {showTodoCreationBlock && (
+            <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm'>
+              <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-xl w-full relative">
+                <button className='absolute top-4 right-4 text-gray-400 hover:text-gray-600' onClick={() => setShowTodoCreationBlock(false)}>
+                  <FaTimes className='text-xl' />
+                </button>
+                <h2 className="text-3xl font-bold mb-6 text-gray-800">Add New Task</h2>
+                <form className="flex flex-col gap-4" onSubmit={todoHandleSubmit(submitAddTodo)}>
+                  <Input placeholder="Task Title" inputType="text" {...todoRegister("todoTitle", { required: "Todo title is required" })} errorObj={todoErrors.todoTitle} />
+                  <Input placeholder="Short Description" inputType="text" {...todoRegister("shortDescription")} />
+                  <Input placeholder="Detailed Description" inputType="textarea" {...todoRegister("detailedDescription")} />
+                  <DateInput placeholder="Deadline" {...todoRegister("deadline", { required: "Todo deadline is required" })} errorObj={todoErrors.deadline} />
+                  <Select label="Priority" options={["Low", "Medium", "High"]} {...todoRegister("priority", { required: "Priority is required" })} errorObj={todoErrors.priority} />
+                  <div className="flex justify-end gap-4 mt-4">
+                    <button type='button' onClick={() => setShowTodoCreationBlock(false)} className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors duration-200">Cancel</button>
+                    <button type='submit' className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200">Add Task</button>
                   </div>
-                  )
-                )
-              }
-            </div>
-            
-            <div className="flex flex-col absolute bg-white top-1/2 left-1/2 -translate-1/2 w-1/2 rounded-lg border items-center p-2 gap-y-5" style={{visibility: (showTodoCreationBlock) ? "visible" : "hidden"}}>
-              <h2 className="text-3xl">Add Todo</h2>
-              <form className="flex flex-col gap-y-2" onSubmit={todoHandleSubmit(submitAddTodo)}>
-                <Input placeholder="Title" inputType="text" {...todoRegister("todoTitle", {required: "Todo title is required"})} errorObj={todoErrors.todoTitle}/>
-                <Input placeholder="Short Description shown with title" inputType="text" {...todoRegister("shortDescription")} errorObj={null}/>
-                <Input placeholder="Detailed Description about project" inputType="text" {...todoRegister("detailedDescription")} errorObj={null}/>
-                <DateInput placeholder="Deadline" {...todoRegister("deadline", {required: "Todo deadline is required"})} errorObj={todoErrors.deadline}/>
-                <Select label="Priority" options={["Low", "Medium", "High"]} {...todoRegister("priority", {required: "Priority is required"})} errorObj={todoErrors.priority}/>
-
-                <div className="flex justify-between">
-                  <button type='submit' className="bg-green-400">Add Todo</button>
-                  <button type='button' onClick={()=>setShowTodoCreationBlock(false)} className="bg-red-400">Cancel</button>
-                </div>
-              </form>
-            </div>
-            {showProjectDeleteOption && <OptionBlock mainText="Do you want to delete this project?" acceptText="Delete" cancelText="Cancel" acceptCallback={deleteProject} cancelCallback={()=>setShowProjectDeleteOption(false)}/>}
-            
-            {
-              showRequestSendingBlock && <div className='flex flex-col absolute top-1/2 left-1/2 -translate-1/2 bg-blue-300 '>
-                <textarea rows="5" cols="100" ref={messageRef} placeholder='Enter message you want to send along project joining request'></textarea>
-                <button className='bg-green-500' onClick={()=>sendProjectJoiningRequest(messageRef.current.value)}>Send</button>
-                <button className='bg-red-500' onClick={()=>setShowRequestSendingBlock(false)}>Cancel</button>
+                </form>
               </div>
-            }
-          </>
-        }
-      </div>
-    </>
-  )
+            </div>
+          )}
+
+          {showProjectDeleteOption && (
+            <OptionBlock
+              mainText="Are you sure you want to delete this project?"
+              acceptText="Delete"
+              cancelText="Cancel"
+              acceptCallback={deleteProject}
+              cancelCallback={() => setShowProjectDeleteOption(false)}
+            />
+          )}
+
+          {showRequestSendingBlock && (
+            <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm'>
+              <div className='bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full relative'>
+                <button className='absolute top-4 right-4 text-gray-400 hover:text-gray-600' onClick={() => setShowRequestSendingBlock(false)}>
+                  <FaTimes className='text-xl' />
+                </button>
+                <h2 className='text-2xl font-bold mb-4'>Join Project</h2>
+                <p className='text-gray-600 mb-4'>Enter a message to send with your joining request.</p>
+                <textarea rows="5" ref={messageRef} className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none' placeholder='Enter your message here...'></textarea>
+                <div className='flex justify-end space-x-4 mt-4'>
+                  <button className='px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-200' onClick={() => setShowRequestSendingBlock(false)}>Cancel</button>
+                  <button className='px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200' onClick={() => sendProjectJoiningRequest(messageRef.current.value)}>Send Request</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
-export default Project
+export default Project;

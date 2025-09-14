@@ -1,50 +1,41 @@
-import React, { useState, useContext } from 'react'
-import { UserContext } from '../Contexts/export.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FaHome, FaTachometerAlt, FaCog, FaInfoCircle, FaEnvelope } from 'react-icons/fa';
 
 function Sidebar() {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const [sidebarWidth, setSidebarWidth] = useState(200);
-  const [sidebarOptionNo, setSidebarOptionNo] = useState(0);
+    const sidebarOptions = [
+        { text: "Home", link: "/", icon: <FaHome /> },
+        { text: "Dashboard", link: "/dashboard", icon: <FaTachometerAlt /> },
+        { text: "Settings", link: "/settings", icon: <FaCog /> },
+        { text: "About", link: "/about", icon: <FaInfoCircle /> },
+        { text: "Contact", link: "/contact", icon: <FaEnvelope /> }
+    ];
 
-  const {user, changeUser} = useContext(UserContext);
-  const navigate = useNavigate();
+    const handleNavigation = (link) => {
+        navigate(link);
+    };
 
-  const sidebarOptions = [
-    {
-      text : "Home",
-      link : "/",
-    },
-    {
-      text : "Dashboard",
-      link : "/dashboard",
-    },
-    {
-      text : "Settings",
-      link : "/settings",
-    },
-    {
-      text: "About",
-      link : "/about",
-    },
-    {
-      text: "Contact",
-      link: "/contact",
-    }
-  ]
-
-  const changeOption = (i) => {
-    setSidebarOptionNo(i);
-    navigate(sidebarOptions[i].link);
-  }
-
-  return (
-    <div className={'flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden bg-green-100'} style={{width:sidebarWidth}}>
-      {sidebarOptions.map((option, i)=>(
-        <div className={`w-full px-2 py-1 text-black font-semibold rounded ${(i==sidebarOptionNo)?'bg-blue-100':''}`} key={option.text} onClick={()=>changeOption(i)}>{option.text}</div>
-      ))}
-    </div>
-  )
+    return (
+        <aside className="bg-gray-200 text-black w-64 flex-grow overflow-y-auto p-4 flex flex-col shadow-xl">
+            <div className="flex-1 space-y-2 mt-8">
+                {sidebarOptions.map((option) => (
+                    <div
+                        key={option.text}
+                        className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-all duration-200
+                            ${location.pathname === option.link ? 'bg-gray-300 text-blue-600' : 'text-gray-700 hover:bg-gray-300 hover:text-black'}`}
+                        onClick={() => handleNavigation(option.link)}
+                    >
+                        <div className="text-xl">
+                            {option.icon}
+                        </div>
+                        <span className="font-semibold text-sm">{option.text}</span>
+                    </div>
+                ))}
+            </div>
+        </aside>
+    );
 }
 
-export default Sidebar
+export default Sidebar;

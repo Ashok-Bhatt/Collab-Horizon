@@ -9,7 +9,6 @@ const UserContextProvider = ({children}) => {
     const [user, setUser] = useState(null);
         
     const changeUser = (newUser)=>{
-        console.log(newUser);
         setUser(newUser);
     }
 

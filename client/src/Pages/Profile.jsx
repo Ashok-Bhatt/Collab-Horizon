@@ -194,37 +194,66 @@ function Profile() {
       </div>
 
       {/* Projects Section */}
-      <div className='flex flex-col p-2 gap-y-5 px-[50px]'>
-        <p className='text-3xl font-bold'>Projects Worked On</p>
-        <div className='flex w-full gap-x-5 overflow-x-auto'>
-            {
-              (userData?.projects && userData.projects.length > 0) ? (userData.projects.map((project)=>(
-                <ProjectBlock height="h-[150px]" width="min-w-[300px]" textSize="text-md" projectInfo={project} key={project._id}/>
-              ))) : <MessageBox containerClasses="flex justify-center items-center h-[200px] w-full bg-gray-400 rounded-lg" text="No Projects Added" textClasses="text-white text-lg font-semibold"/>
-            }
-        </div>
+<div className='flex flex-col p-6 md:p-10 bg-gray-50 rounded-lg shadow-inner'>
+  <div className='flex justify-between items-center mb-4'>
+    <p className='text-3xl font-extrabold text-gray-800'>Projects</p>
+    <button className='text-blue-500 hover:text-blue-700 transition-colors duration-200 text-lg font-semibold'>
+      View All
+    </button>
+  </div>
+  <div className='flex w-full gap-5 overflow-x-auto scrollbar-hide'>
+    {(userData?.projects && userData.projects.length > 0) ? (
+      userData.projects.map((project) => (
+        <ProjectBlock 
+          height="h-[200px]" 
+          width="min-w-[350px]" 
+          textSize="text-md" 
+          projectInfo={project} 
+          key={project._id}
+        />
+      ))
+    ) : (
+      <div className="flex items-center justify-center h-[200px] w-full bg-gray-200 rounded-xl">
+        <p className="text-gray-500 text-lg font-semibold">No Projects Added</p>
       </div>
+    )}
+  </div>
+</div>
 
-      {/* Social Profile Links */}
-      <div className='flex flex-col w-full px-[50px] p-2'>
-        <p className='text-3xl font-bold'>Social Profiles</p>
-        <div className='flex flex-wrap gap-y-2 justify-between content-start mt-5 min-h-[200px] w-full'>
-            <SocialProfileBlock profileIcon = {<img src="/Images/github_logo.png"/>} appName="Github" profileLink={userData?.
-socialProfilesLinks?.github}/>
-            <SocialProfileBlock profileIcon = {<img src="/Images/linkedin_logo.png"/>} appName="Linkedin" profileLink={userData?.
-socialProfilesLinks?.linkedin}/>
-            <SocialProfileBlock profileIcon = {<img src="/Images/twitter_logo.png"/>} appName="Twitter" profileLink={userData?.
-socialProfilesLinks?.twitter}/>
-            <SocialProfileBlock profileIcon = {<img src="/Images/website_logo.png"/>} appName="Portfolio" profileLink={userData?.
-socialProfilesLinks?.portfolioWebsite}/>
-
-            {
-              userData?.socialProfilesLinks?.others.map((socialProfile)=>(
-                <SocialProfileBlock profileIcon = {<img src="/Images/website_logo.png"/>} appName={socialProfile.appName} profileLink={socialProfile.profileLink} key={socialProfile._id}/>
-              ))
-            }
-        </div>
-      </div>
+{/* Social Profile Links */}
+<div className='flex flex-col w-full p-6 md:p-10 bg-gray-50 rounded-lg shadow-inner mt-8'>
+  <p className='text-3xl font-extrabold text-gray-800 mb-6'>Social Profiles</p>
+  <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+    <SocialProfileBlock 
+      profileIcon={<img src="/Images/github_logo.png" alt="Github" className="h-10 w-10"/>} 
+      appName="Github" 
+      profileLink={userData?.socialProfilesLinks?.github}
+    />
+    <SocialProfileBlock 
+      profileIcon={<img src="/Images/linkedin_logo.png" alt="LinkedIn" className="h-10 w-10"/>} 
+      appName="Linkedin" 
+      profileLink={userData?.socialProfilesLinks?.linkedin}
+    />
+    <SocialProfileBlock 
+      profileIcon={<img src="/Images/twitter_logo.png" alt="Twitter" className="h-10 w-10"/>} 
+      appName="Twitter" 
+      profileLink={userData?.socialProfilesLinks?.twitter}
+    />
+    <SocialProfileBlock 
+      profileIcon={<img src="/Images/website_logo.png" alt="Portfolio" className="h-10 w-10"/>} 
+      appName="Portfolio" 
+      profileLink={userData?.socialProfilesLinks?.portfolioWebsite}
+    />
+    {userData?.socialProfilesLinks?.others.map((socialProfile) => (
+      <SocialProfileBlock 
+        profileIcon={<img src="/Images/website_logo.png" alt={socialProfile.appName} className="h-10 w-10"/>} 
+        appName={socialProfile.appName} 
+        profileLink={socialProfile.profileLink} 
+        key={socialProfile._id}
+      />
+    ))}
+  </div>
+</div>
 
       {editedData && <EditProfile editedData={editedData} setEditedData={setEditedData} setIsEditing={setIsEditing} setUserData={setUserData}/>}
     </div>

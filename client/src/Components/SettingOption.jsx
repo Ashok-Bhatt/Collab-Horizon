@@ -5,7 +5,7 @@ function SettingOption(props) {
   const {settingOptionText, settingOptionBlock=null, ...rest} = props;
 
   return (
-    <div className='flex w-full h-15 px-5 justify-between items-center bg-yellow-100 rounded-lg' {...rest}>
+    <div className='flex w-full h-15 px-5 justify-between items-center rounded-lg' {...rest}>
       <p>{settingOptionText}</p>
       {settingOptionBlock}
     </div>
