@@ -274,22 +274,6 @@ const getNewTokens = async (req, res) => {
     }
 }
 
-const getNewAccessToken = async (req, res) => {
-    try {
-        const accessToken = await User.generateAccessToken();
-
-        const options = { httpOnly: true, secure: false };
-
-        return res
-            .status(200)
-            .cookie("accessToken", accessToken, options)
-            .json(new ApiResponse(200, { accessToken }, "New Access token generated!"));
-    } catch (error) {
-        console.log("Error in user controller", error);
-        return res.status(500).json(new ApiResponse(500, null, "Something went wrong!"));
-    }
-}
-
 const checkAuth = async (req, res) => {
     try {
         const loggedInUser = req.user;
@@ -318,6 +302,5 @@ export {
     getUserInfo,
     changePassword,
     getNewTokens,
-    getNewAccessToken,
     checkAuth,
 };

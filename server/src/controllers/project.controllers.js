@@ -164,6 +164,16 @@ const toggleVisibilityStatus = async (req, res) => {
     }
 };
 
+const getPublicProjects = async (req, res) => {
+    try {
+        const projects = await Project.find({visibilityStatus: true});
+        return res.status(200).json(new ApiResponse(200, projects, "All public projects found!"));
+    } catch (error) {
+        console.log("Error in project controller", error);
+        return res.status(500).json(new ApiResponse(500, null, "Something went wrong!"));
+    }
+}
+
 
 const sendProjectJoiningRequest = async (req, res) => {
     try {
@@ -279,6 +289,7 @@ export {
     getProjectInfo,
     changeInfo,
     removeProject,
+    getPublicProjects,
     toggleVisibilityStatus,
     sendProjectJoiningRequest,
     getAllProjectJoiningRequests,

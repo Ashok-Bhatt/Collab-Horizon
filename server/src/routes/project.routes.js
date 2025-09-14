@@ -12,6 +12,7 @@ import {
     sendProjectJoiningRequest,
     getAllProjectJoiningRequests,
     handleProjectJoiningRequest,
+    getPublicProjects,
 } from "../controllers/project.controllers.js";
 
 
@@ -41,6 +42,10 @@ router.route("/removeProject").delete(
     verifyJWT,
     checkUserAuthorization,
     removeProject
+)
+
+router.route("/getPublicProjects").get(
+    getPublicProjects,
 )
 
 router.route("/toggleVisibilityStatus").patch(
