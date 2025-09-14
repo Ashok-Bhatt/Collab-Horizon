@@ -3,7 +3,7 @@ import {Notifications} from "../Components/export.js"
 
 function Explore() {
   return (
-    <div className='h-full w-full'>
+    <div className='flex-grow w-full overflow-y-auto'>
       <div className="flex w-full justify-end">
         <Notifications/>
       </div>

@@ -88,7 +88,7 @@ function AddProject() {
     };
 
     return (
-        <div className="flex h-full w-full justify-center p-8 bg-orange-100">
+        <div className="flex flex-grow w-full justify-center p-8">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className='flex flex-col gap-y-6 bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl overflow-y-auto'

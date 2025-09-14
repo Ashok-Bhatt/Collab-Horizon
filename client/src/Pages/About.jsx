@@ -1,9 +1,9 @@
 function About() {
 
   const projectTeam = [
-    { name: "Ashok Bhatt", role: "Founder & Developer" },
-    { name: "Vrajesh Pandya", role: "UI/UX Designer" },
-    { name: "Priyansh Dabhi", role: "Product Manager and Developer"}
+    { name: "Ashok Bhatt", role: "Founder & Developer", imageUrl: "/Images/Team Members/ashok_bhatt.png" },
+    { name: "Peiyansh Dabhi", role: "Product Manager", imageUrl: "/Images/Team Members/priyansh_dabhi.jpg" },
+    { name: "Vrajesh Pandya", role: "Developer & UI/UX Designer", imageUrl: "/Images/Team Members/vrajesh_pandya.jpg"}
   ]
 
   return (
@@ -63,7 +63,9 @@ function About() {
                 key={member.name}
                 className="bg-white rounded-2xl shadow p-6 text-center"
               >
-                <div className="w-20 h-20 mx-auto rounded-full bg-gray-300 mb-4" />
+                <div className="w-20 h-20 mx-auto rounded-full mb-4 overflow-hidden" >
+                  <img src={member.imageUrl} alt="Team member image" className="w-full h-full"/>
+                </div>
                 <h3 className="font-semibold text-lg">{member.name}</h3>
                 <p className="text-gray-600">{member.role}</p>
               </div>

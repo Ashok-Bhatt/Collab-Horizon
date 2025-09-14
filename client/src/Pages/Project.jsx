@@ -190,7 +190,7 @@ function Project() {
   }, [isEditing, projectInfo, projectReset]);
 
   return (
-    <div className='flex flex-col h-full w-full p-6 md:p-10 gap-y-8 bg-gray-50 text-gray-800'>
+    <div className='flex flex-col flex-grow w-full overflow-y-auto p-6 md:p-10 gap-y-8 bg-gray-50 text-gray-800'>
       {projectInfo && (
         <>
           <div className="flex flex-col gap-6 p-6 md:p-8 bg-white rounded-2xl shadow-lg">

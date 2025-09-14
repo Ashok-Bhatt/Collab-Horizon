@@ -45,7 +45,7 @@ function Dashboard() {
   }
 
   return (
-    <div className='flex flex-col p-4 md:p-8 bg-gray-50 min-h-screen w-full relative'>
+    <div className='flex flex-col flex-grow w-full overflow-y-auto p-4 md:p-8 bg-gray-50 relative'>
       <header className='flex justify-between items-center py-4 px-6 md:px-10 border-b border-gray-200 mb-6'>
         <h1 className='text-3xl font-bold text-gray-800'>Your Projects</h1>
         <button 

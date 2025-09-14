@@ -69,6 +69,10 @@ const router = createBrowserRouter(
           path : "/profile/:id",
           element: <AuthLayout authentication={true} children={<Profile/>}/>
         },
+        {
+          path : "*",
+          element: <ErrorPage/>
+        }
       ]
     },
   ]

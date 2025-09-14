@@ -4,9 +4,9 @@ import {Sidebar, Navbar} from '../Components/export.js'
 function Home() {
 
   return (
-    <div className='flex flex-col h-full w-full'>
+    <div className='flex flex-col h-screen w-full'>
       <Navbar/>
-      <div className='flex w-full flex-grow'>
+      <div className='flex flex-grow overflow-hidden'>
         <Sidebar/>
         <Outlet/>
       </div>
