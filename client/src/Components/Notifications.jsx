@@ -99,7 +99,7 @@ function Notifications() {
     };
 
     return (
-        <div className="flex justify-end w-full">
+        <div className="flex justify-end">
             <div className="relative">
                 <IoIosNotifications className="h-[30px] w-[30px] rounded-full cursor-pointer"
                     onClick={() => setShowNotifications((prev) => !prev)}

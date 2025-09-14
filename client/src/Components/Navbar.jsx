@@ -41,13 +41,29 @@ function Navbar() {
 
 
   return (
-    <nav className='flex justify-end items-center bg-blue-100 p-2 gap-x-5'>
-        <button className='border-0 bg-blue-100 hover:bg-blue-200 text-lg py-1 px-3 rounded-lg' onClick={logout}>Logout</button>
-        <div className='rounded-full h-[50px] w-[50px] overflow-hidden' onClick={navigateProfile}>
-            <img src={userAvatar} className='h-full w-full'/>
+    <nav className='flex items-center justify-between border-b border-gray-300 bg-white px-6 py-3 shadow-sm'>
+        {/* Left section for a potential logo or title */}
+        <div className='flex items-center'>
+        <span className='text-xl font-bold text-gray-800'>MyApp</span>
+        </div>
+
+        {/* Right section with user actions */}
+        <div className='flex items-center gap-x-4'>
+        <button 
+            className='rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' 
+            onClick={logout}
+        >
+            Logout
+        </button>
+        <button 
+            className='relative h-10 w-10 overflow-hidden rounded-full border-2 border-transparent transition-all duration-200 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500' 
+            onClick={navigateProfile}
+        >
+            <img src={userAvatar} className='h-full w-full object-cover' alt="User Avatar" />
+        </button>
         </div>
     </nav>
-  )
+    );
 }
 
 export default Navbar
